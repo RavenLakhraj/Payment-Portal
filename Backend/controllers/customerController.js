@@ -19,7 +19,7 @@ async function handleRegisterCustomer(req, res) {
 
         //Validating email address format
         if (!emailRegex.test(email)) {
-            return res.status(400).json({ message: "Invalid email address." });
+            return res.status(400).json({ message: "Invalid email address." })
         }
 
         //Validating password

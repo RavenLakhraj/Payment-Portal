@@ -17,7 +17,7 @@ async function checkCustomers(email, idNumber, accountNumber) {
             { idNumber: idNumber }
         ]
     };
-    return await customersCollection.countDocuments(query, { limit: 1 });
+    return await customersCollection.countDocuments(query, { limit: 1 })
 }
 
 //Exporting functions

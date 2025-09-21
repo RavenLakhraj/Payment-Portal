@@ -1,9 +1,9 @@
 import jwt from 'jsonwebtoken'
-import { client } from '../db/db.js';
+import { client } from '../db/db.js'
 
 const db = client.db('Test');
-const employeesCollection = db.collection('Employees');
-const customersCollection = db.collection('Customers');
+const employeesCollection = db.collection('Employees')
+const customersCollection = db.collection('Customers')
 
 async function handleLogin(req, res) {
     try{
@@ -26,7 +26,7 @@ async function handleLogin(req, res) {
 
         //Email address found; check password
         if (user.password !== password) {
-            return res.status(401).json({ message: "Invalid credentials." });
+            return res.status(401).json({ message: "Invalid credentials." })
         }
 
         //Upon successful login, sign jwt
@@ -40,7 +40,7 @@ async function handleLogin(req, res) {
 
     } catch {
         console.error(err);
-        return res.status(500).json({ message: "Server error." });
+        return res.status(500).json({ message: "Server error." })
     }
 }
 

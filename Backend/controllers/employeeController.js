@@ -11,7 +11,7 @@ async function handleRegisterEmployee(req, res) {
 
         //Validating email address format
         if (!emailRegex.test(email)) {
-            return res.status(400).json({ message: "Invalid email format." });
+            return res.status(400).json({ message: "Invalid email format." })
         }
 
         //Validating password

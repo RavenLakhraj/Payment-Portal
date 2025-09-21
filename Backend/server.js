@@ -41,5 +41,5 @@ connect()
 
 //Start server
 server.listen(port, () => {
-  console.log(`Server started on PORT ${port}`);
+  console.log(`Server started on PORT ${port}`)
 })
