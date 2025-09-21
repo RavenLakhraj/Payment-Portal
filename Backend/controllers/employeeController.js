@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt'
 import { registerEmployee, checkEmployees } from '../models/employee.js'
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=<>?{}[\]~]).{8,}$/
 const saltRounds = 10
 
 async function handleRegisterEmployee(req, res) {
@@ -11,6 +12,11 @@ async function handleRegisterEmployee(req, res) {
         //Validating email address format
         if (!emailRegex.test(email)) {
             return res.status(400).json({ message: "Invalid email format." });
+        }
+
+        //Validating password
+        if(!passwordRegex.test(password)) {
+            return res.status(400).json({ message: "Password does not meet criteria." })
         }
 
         //Check if employee already exists

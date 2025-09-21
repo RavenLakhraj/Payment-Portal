@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt'
 import { registerCustomer, checkCustomers } from '../models/customer.js'
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=<>?{}[\]~]).{8,}$/
 const idNumberRegex = /^\d{13}$/
 const accountNumberRegex = /^\d{16}$/
 const saltRounds = 10
@@ -19,6 +20,11 @@ async function handleRegisterCustomer(req, res) {
         //Validating email address format
         if (!emailRegex.test(email)) {
             return res.status(400).json({ message: "Invalid email address." });
+        }
+
+        //Validating password
+        if(!passwordRegex.test(password)) {
+            return res.status(400).json({ message: "Password does not meet criteria." })
         }
 
         //Validating ID number
