@@ -36,7 +36,11 @@ async function handleLogin(req, res) {
             { expiresIn: "1h" }
         )
 
-        return res.status(200).json({ message: `Login successful. Role: ${ role }`, token })
+        return res.status(200).json({
+            message: 'Login successful',
+            token,
+            role: role
+        })
 
     } catch {
         console.error(err);

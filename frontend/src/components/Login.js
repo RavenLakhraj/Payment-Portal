@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useNavigate  } from 'react-router-dom'
+import axios from 'axios'
 import { Link } from 'react-router-dom'
 
 export default function Login() {
@@ -6,24 +8,27 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
 
+  const navigate = useNavigate()
+
   const handleSubmit = async (e) => {
     e.preventDefault()
 
     try {
-      const response = await fetch('https://localhost:2000/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await axios.post('https://localhost:2000/login', 
+        { email, password })
 
-      const data = await response.json()
+      const data = response.data
 
-      if (response.ok) {
+      if (response.status === 200) {
         setMessage(data.message)
-
         localStorage.setItem('token', data.token)
+        const role = data.role
+
+        if(role === 'employee') {
+          navigate('/transactions')
+        } else if(role === 'customer') {
+          navigate('/payment')
+        }
       } else {
         setMessage(data.message)
       }
