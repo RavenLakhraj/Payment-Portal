@@ -1,34 +1,35 @@
-import { useState } from "react";
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await fetch("https://localhost:2000/login", {
-        method: "POST",
+      const response = await fetch('https://localhost:2000/login', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      const data = await response.json()
 
       if (response.ok) {
         setMessage(data.message);
         // Store JWT for later use (optional)
-        localStorage.setItem("token", data.token);
+        localStorage.setItem('token', data.token);
       } else {
         setMessage(data.message);
       }
     } catch (err) {
       console.error(err);
-      setMessage("Network error");
+      setMessage('Network error');
     }
   };
 
@@ -55,6 +56,10 @@ export default function Login() {
         <button type="submit">Login</button>
       </form>
       <p>{message}</p>
+      <div> 
+        <Link to="/register">Don't have an account? Register now</Link>
+      </div>
     </div>
+
   );
 }
