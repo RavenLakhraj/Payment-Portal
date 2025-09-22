@@ -20,5 +20,10 @@ async function checkCustomers(email, idNumber, accountNumber) {
     return await customersCollection.countDocuments(query, { limit: 1 })
 }
 
+//Logging customer in
+async function loginCustomer(email, accountNumber) {
+    return await customersCollection.findOne({ email, accountNumber })
+}
+
 //Exporting functions
-export { registerCustomer, checkCustomers }
+export { registerCustomer, checkCustomers, loginCustomer }

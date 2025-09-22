@@ -13,5 +13,10 @@ async function checkEmployees(email) {
     return await employeesCollection.countDocuments({ email }, { limit: 1 })
 }
 
+//Logging employee in
+async function loginEmployee(email) {
+    return await employeesCollection.findOne({ email })
+}
+
 //Exporting functions
-export { registerEmployee, checkEmployees }
+export { registerEmployee, checkEmployees, loginEmployee }

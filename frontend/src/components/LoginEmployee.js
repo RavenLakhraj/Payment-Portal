@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { useNavigate  } from 'react-router-dom'
 import axios from 'axios'
-import { Link } from 'react-router-dom'
 
-export default function Login() {
+export default function LoginEmployee() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
@@ -14,7 +13,7 @@ export default function Login() {
     e.preventDefault()
 
     try {
-      const response = await axios.post('https://localhost:2000/login', 
+      const response = await axios.post('https://localhost:2000/employees/login', 
         { email, password })
 
       const data = response.data
@@ -24,11 +23,8 @@ export default function Login() {
         localStorage.setItem('token', data.token)
         const role = data.role
 
-        if(role === 'employee') {
-          navigate('/transactions')
-        } else if(role === 'customer') {
-          navigate('/payment')
-        }
+        navigate('/transactions')
+
       } else {
         setMessage(data.message)
       }
@@ -40,7 +36,7 @@ export default function Login() {
 
   return (
     <div>
-      <h1>Login</h1>
+      <h1>Employee Login</h1>
       <form onSubmit={handleSubmit}>
         <input
           type="email"
@@ -61,9 +57,6 @@ export default function Login() {
         <button type="submit">Login</button>
       </form>
       <p>{message}</p>
-      <div> 
-        <Link to="/register">Don't have an account? Register now</Link>
-      </div>
     </div>
 
   )

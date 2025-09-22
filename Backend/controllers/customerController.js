@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt'
-import { registerCustomer, checkCustomers } from '../models/customer.js'
+import jwt from 'jsonwebtoken'
+import { registerCustomer, checkCustomers, loginCustomer } from '../models/customer.js'
 
 const nameRegex = /^[A-Za-z\s]+$/
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -80,4 +81,35 @@ async function handleRegisterCustomer(req, res) {
     }
 }
 
-export { handleRegisterCustomer }
+async function handleLoginCustomer(req, res) {
+    try{
+        const { email, accountNumber, password } = req.body
+
+        const customer = await loginCustomer(email, accountNumber)
+
+        if(!customer) {
+            return res.status(401).json({ message: 'Invalid credentials.' })
+        }
+
+        if(customer.password !== password) {
+            return res.status(401).json({ message: 'Invalid credentials.' })
+        }
+
+        const token = jwt.sign(
+            { userId: customer._id, role: 'customer' },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        )
+
+        return res.status(200).json({
+            message: 'Login successful',
+            token,
+            role: 'customer'
+        })
+    } catch(err) {
+        console.error(err)
+        return res.status(500).json({ message: 'Server error' })
+    }
+}
+
+export { handleRegisterCustomer, handleLoginCustomer }
