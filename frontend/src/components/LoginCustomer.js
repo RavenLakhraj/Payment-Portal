@@ -25,7 +25,7 @@ export default function LoginCustomer() {
         localStorage.setItem('token', data.token)
         const role = data.role
 
-        navigate('/payment')
+        navigate('/customers/payment')
 
       } else {
         setMessage(data.message)

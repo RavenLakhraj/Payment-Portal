@@ -1,4 +1,4 @@
-import { addPayment } from '../models/payment'
+import { addPayment } from '../models/payment.js'
 
 const amountRegex = /^\d+(\.\d{1,2})?$/
 const payeeNameRegex = /^[A-Za-z\s]+$/
