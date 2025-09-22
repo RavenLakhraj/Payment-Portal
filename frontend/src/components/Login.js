@@ -2,12 +2,12 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [message, setMessage] = useState('')
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     try {
       const response = await fetch('https://localhost:2000/login', {
@@ -21,17 +21,17 @@ export default function Login() {
       const data = await response.json()
 
       if (response.ok) {
-        setMessage(data.message);
-        // Store JWT for later use (optional)
-        localStorage.setItem('token', data.token);
+        setMessage(data.message)
+
+        localStorage.setItem('token', data.token)
       } else {
-        setMessage(data.message);
+        setMessage(data.message)
       }
     } catch (err) {
-      console.error(err);
-      setMessage('Network error');
+      console.error(err)
+      setMessage('Network error')
     }
-  };
+  }
 
   return (
     <div>
@@ -61,5 +61,5 @@ export default function Login() {
       </div>
     </div>
 
-  );
+  )
 }

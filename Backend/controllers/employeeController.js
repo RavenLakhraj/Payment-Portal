@@ -10,13 +10,13 @@ async function handleRegisterEmployee(req, res) {
         const { email, password } = req.body
 
         //Validating email address format
-        if (!emailRegex.test(email)) {
-            return res.status(400).json({ message: "Invalid email format." })
+        if (!email || !emailRegex.test(email)) {
+            return res.status(400).json({ message: 'Please enter a valid email address.' })
         }
 
         //Validating password
-        if(!passwordRegex.test(password)) {
-            return res.status(400).json({ message: "Password does not meet criteria." })
+        if(!password || !passwordRegex.test(password)) {
+            return res.status(400).json({ message: 'The password provided does not meet the minimum criteria.' })
         }
 
         //Check if employee already exists
@@ -24,7 +24,7 @@ async function handleRegisterEmployee(req, res) {
         
         //If email is already in use
         if(employeeExists){
-            return res.status(409).json({ message: "Email already in use."})
+            return res.status(409).json({ message: 'Email already in use.' })
         }
 
         //Hashing and salting the password
@@ -49,7 +49,7 @@ async function handleRegisterEmployee(req, res) {
         }
     } catch(err) {
         console.error(err)
-        return res.status(500).json({ message: "Server error." })
+        return res.status(500).json({ message: 'Server error.' })
     }
 }
 

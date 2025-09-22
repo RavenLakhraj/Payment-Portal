@@ -15,7 +15,7 @@ async function handleLogin(req, res) {
 
         //If not employee, check if a customer is logging in
         if(!user) {
-            user = await await customersCollection.findOne({ email })
+            user = await customersCollection.findOne({ email })
             role = "customer"
         }
 

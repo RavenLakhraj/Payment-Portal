@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt'
 import { registerCustomer, checkCustomers } from '../models/customer.js'
 
+const nameRegex = /^[A-Za-z\s]+$/
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=<>?{}[\]~]).{8,}$/
 const idNumberRegex = /^\d{13}$/
@@ -17,32 +18,37 @@ async function handleRegisterCustomer(req, res) {
             password 
         } = req.body
 
-        //Validating email address format
-        if (!emailRegex.test(email)) {
-            return res.status(400).json({ message: "Invalid email address." })
-        }
-
-        //Validating password
-        if(!passwordRegex.test(password)) {
-            return res.status(400).json({ message: "Password does not meet criteria." })
+        //Validating full name input
+        if(!fullName || !nameRegex.test(fullName)) {
+            return res.status(400).json({ message: 'Invalid name.'})
         }
 
         //Validating ID number
-        if(!idNumberRegex.test(idNumber)) {
-            return res.status(400).json({ message: "Invalid ID number." })
+        if(!idNumber || !idNumberRegex.test(idNumber)) {
+            return res.status(400).json({ message: 'Invalid ID number.' })
         }
 
         //Validating account number
-        if(!accountNumberRegex.test(accountNumber)) {
-            return res.status(400).json({ message: "Invalid account number" })
+        if(!accountNumber || !accountNumberRegex.test(accountNumber)) {
+            return res.status(400).json({ message: 'Invalid account number' })
+        }
+
+        //Validating email address format
+        if (!email || !emailRegex.test(email)) {
+            return res.status(400).json({ message: 'Invalid email address.' })
+        }
+
+        //Validating password
+        if(!password || !passwordRegex.test(password)) {
+            return res.status(400).json({ message: 'Password does not meet criteria.' })
         }
 
         //Check if customer already exists
         const customerExists = await checkCustomers(email, idNumber, accountNumber)
         
-        //If email is already in use
+        //If the credentials are already in use
         if(customerExists){
-            return res.status(409).json({ message: "Customer with these details already exists."})
+            return res.status(409).json({ message: 'Customer with these details already exists.'})
         }
 
         //Hashing and salting the password
@@ -70,7 +76,7 @@ async function handleRegisterCustomer(req, res) {
         }
     } catch(err) {
         console.error(err)
-        return res.status(500).json({ message: "Server error." })
+        return res.status(500).json({ message: 'Server error.' })
     }
 }
 
