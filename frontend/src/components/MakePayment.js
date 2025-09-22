@@ -33,7 +33,7 @@ export default function MakePayment() {
             setMessage('Payment sent.')
             console.log(response.data)
 
-            navigate('/payment-success')
+            navigate('/customers/payment-success')
 
         } catch (err) {
             if (err.response) {

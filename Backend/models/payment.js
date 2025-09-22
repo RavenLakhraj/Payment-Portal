@@ -1,12 +1,14 @@
 import { client } from '../db/db.js'
 
 const db = client.db('Test')
-const paymentsCollection = db.collection('Payment')
+const paymentsCollection = db.collection('Payments')
 
 //Creating new payment profile
-async function addPayment(paymentData) {
+export async function addPayment(paymentData) {
     return await paymentsCollection.insertOne(paymentData)
 }
 
-//Exporting functions
-export { addPayment }
+//Fetching all pending payments
+export async function fetchPendingPayments(filter = {}) {
+    return await paymentsCollection.find(filter).toArray()
+}

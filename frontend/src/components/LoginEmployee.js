@@ -23,7 +23,7 @@ export default function LoginEmployee() {
         localStorage.setItem('token', data.token)
         const role = data.role
 
-        navigate('/transactions')
+        navigate('/employees/payments')
 
       } else {
         setMessage(data.message)

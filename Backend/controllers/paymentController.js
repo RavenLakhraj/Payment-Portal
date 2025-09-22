@@ -1,11 +1,11 @@
-import { addPayment } from '../models/payment.js'
+import { addPayment, fetchPendingPayments } from '../models/payment.js'
 
 const amountRegex = /^\d+(\.\d{1,2})?$/
 const payeeNameRegex = /^[A-Za-z\s]+$/
 const payeeAccountNumberRegex = /^\d{9,12}$/
 const swiftCodeRegex = /^[A-Za-z0-9]{8,11}$/
 
-async function handleAddPayment(req, res) {
+export async function handleAddPayment(req, res) {
     try {
         const {
             amount,
@@ -76,4 +76,12 @@ async function handleAddPayment(req, res) {
     }
 }
 
-export { handleAddPayment }
+export async function handleFetchPendingPayments(req,res) {
+        try {
+        const pendingPayments = await fetchPendingPayments({ status: 'Pending' })
+        return res.status(200).json(pendingPayments)
+    } catch (err) {
+        console.error(err)
+        return res.status(500).json({ message: 'Server error' })
+    }
+}

@@ -6,7 +6,7 @@ import LoginCustomer from './components/LoginCustomer.js';
 import Register from './components/Register.js';
 import MakePayment from './components/MakePayment.js';
 import PaymentSuccess from './components/PaymentSuccess.js';
-import Transactions from './components/Transactions.js';
+import PaymentsList  from './components/PaymentsList.js';
 
 function App() {
   return (
@@ -18,7 +18,7 @@ function App() {
         <Route path ='/employees/login' element={<LoginEmployee/>}></Route>
         <Route path = '/customers/payment' element={<MakePayment/>}></Route>
         <Route path = '/customers/payment-success' element={<PaymentSuccess/>}></Route>
-        <Route path = '/transactions' element={<Transactions/>}></Route>
+        <Route path = '/employees/payments' element={<PaymentsList/>}></Route>
       </Routes>
     </Router>
   )
