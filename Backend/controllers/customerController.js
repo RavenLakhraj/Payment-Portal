@@ -6,7 +6,7 @@ const nameRegex = /^[A-Za-z\s]+$/
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=<>?{}[\]~]).{8,}$/
 const idNumberRegex = /^\d{13}$/
-const accountNumberRegex = /^\d{16}$/
+const accountNumberRegex = /^\d{9,12}$/
 const saltRounds = 10
 
 async function handleRegisterCustomer(req, res) {

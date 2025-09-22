@@ -7,6 +7,7 @@ import { connect } from './db/db.js'
 
 import employeeRoutes from './routes/employeeRoutes.js'
 import customerRoutes from './routes/customerRoutes.js'
+import paymentRoutes from './routes/paymentRoutes.js'
 
 dotenv.config()
 
@@ -19,6 +20,7 @@ app.use(cors())
 app.use(express.json())
 app.use('/employees', employeeRoutes)
 app.use('/customers', customerRoutes)
+app.use('/payments', paymentRoutes)
 
 //Test route
 app.get("/", (_, res) => {
