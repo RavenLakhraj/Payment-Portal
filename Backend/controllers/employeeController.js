@@ -1,13 +1,19 @@
 import bcrypt from 'bcrypt'
 import { registerEmployee, checkEmployees } from '../models/employee.js'
 
+const nameRegex = /^[A-Za-z\s]+$/
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=<>?{}[\]~]).{8,}$/
 const saltRounds = 10
 
 async function handleRegisterEmployee(req, res) {
     try {
-        const { email, password } = req.body
+        const { fullName, email, password } = req.body
+
+        //Validating full name input
+        if(!fullName || !nameRegex.test(fullName)) {
+            return res.status(400).json({ message: 'Invalid name.'})
+        }
 
         //Validating email address format
         if (!email || !emailRegex.test(email)) {
@@ -33,6 +39,7 @@ async function handleRegisterEmployee(req, res) {
         //** CURRENTLY STORING PLAIN TEXT PASSWORD - REMOVE BEFORE SUBMISSION
         //Data to be stored in document
         const employeeData = { 
+            fullName,
             email, 
             password,
             hashedPassword,
