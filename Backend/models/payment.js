@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongodb'
 import { client } from '../db/db.js'
 
 const db = client.db('Test')
@@ -9,6 +10,14 @@ export async function addPayment(paymentData) {
 }
 
 //Fetching all pending payments
-export async function fetchPendingPayments(filter = {}) {
+export async function fetchPayments(filter = {}) {
     return await paymentsCollection.find(filter).toArray()
+}
+
+//Updating status of payments 
+export async function updatePaymentStatus(paymentId, newStatus) {
+    return await paymentsCollection.updateOne(
+        { _id: new ObjectId(paymentId) },
+        { $set: { status: newStatus } }
+    )
 }
