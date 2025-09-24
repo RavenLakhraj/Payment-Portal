@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate  } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 
@@ -14,7 +14,7 @@ export default function LoginEmployee() {
     e.preventDefault()
 
     try {
-      const response = await axios.post('https://localhost:2000/employees/login', 
+      const response = await axios.post('https://localhost:2000/employees/login',
         { email, password })
 
       const data = response.data
@@ -36,33 +36,84 @@ export default function LoginEmployee() {
   }
 
   return (
-    <div>
-      <h1>Employee Login</h1>
-      <form onSubmit={handleSubmit}>
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '100vh',
+      fontFamily: 'Arial, sans-serif',
+      backgroundColor: '#f5f5f5',
+      padding: '20px'
+    }}>
+      <h1 style={{ marginBottom: '30px', color: '#333' }}>Employee Login</h1>
+
+      <form
+        onSubmit={handleSubmit}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '15px',
+          backgroundColor: '#fff',
+          padding: '30px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+          width: '100%',
+          maxWidth: '400px'
+        }}
+      >
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          style={{
+            padding: '10px',
+            borderRadius: '6px',
+            border: '1px solid #ccc',
+            fontSize: '16px'
+          }}
         />
-        <br />
+
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          style={{
+            padding: '10px',
+            borderRadius: '6px',
+            border: '1px solid #ccc',
+            fontSize: '16px'
+          }}
         />
-        <br />
-        <button type="submit">Login</button>
+
+        <button
+          type="submit"
+          style={{
+            padding: '12px',
+            borderRadius: '6px',
+            border: 'none',
+            backgroundColor: '#007bff',
+            color: '#fff',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            fontSize: '16px'
+          }}
+        >
+          Login
+        </button>
       </form>
-      <p>{message}</p>
-            <br />
-      <div>
-        <Link to="/">Back to Home</Link>
+
+      {message && <p style={{ marginTop: '15px', color: 'red' }}>{message}</p>}
+
+      <div style={{ marginTop: '20px' }}>
+        <Link to="/" style={{ color: '#007bff', textDecoration: 'none' }}>
+          Back to Home
+        </Link>
       </div>
     </div>
-
   )
 }
