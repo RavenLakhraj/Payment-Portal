@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { registerCustomer, checkCustomers, loginCustomer } from '../models/customer.js'
 
-const nameRegex = /^[A-Za-z\s]+$/
+const nameRegex = /^[A-Za-z\s-]+$/
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=<>?{}[\]~]).{8,}$/
 const idNumberRegex = /^\d{13}$/

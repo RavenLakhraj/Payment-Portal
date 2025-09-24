@@ -68,7 +68,7 @@ export default function LoginCustomer() {
       </form>
       <p>{message}</p>
       <div> 
-        <Link to="/register">Don't have an account? Register now</Link>
+        <Link to="/register-customer">Don't have an account? Register now</Link>
       </div>
     </div>
 

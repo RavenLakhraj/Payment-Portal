@@ -2,8 +2,8 @@ import { ObjectId } from 'mongodb'
 
 import { addPayment, fetchPayments, updatePaymentStatus } from '../models/payment.js'
 
-const amountRegex = /^\d+(\.\d{1,2})?$/
-const payeeNameRegex = /^[A-Za-z\s]+$/
+const amountRegex = /^(?:[1-9]\d*|0?\.\d*[1-9]\d?)$/  
+const payeeNameRegex = /^[A-Za-z\s-]+$/
 const payeeAccountNumberRegex = /^\d{9,12}$/
 const swiftCodeRegex = /^[A-Za-z0-9]{8,11}$/
 

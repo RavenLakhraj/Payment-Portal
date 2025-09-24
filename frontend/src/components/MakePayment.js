@@ -53,7 +53,12 @@ export default function MakePayment() {
             <input
                 type="text"
                 value={amount}
-                onChange={e => setAmount(e.target.value)}
+                onChange={e => {
+                    const value = e.target.value
+                    if(value === '' || /^(?:[1-9]\d*|0?\.\d*[1-9]\d?)$/.test(amount)) {
+                        setAmount(value)
+                    }
+                }}
                 placeholder="Amount"
             />
 
@@ -84,7 +89,12 @@ export default function MakePayment() {
             <input
                 type="text"
                 value={payeeName}
-                onChange={e => setPayeeName(e.target.value)}
+                onChange={e => {
+                    const value = e.target.value
+                    if(value === '' || /^[A-Za-z\s-]*$/.test(value)) {
+                        setPayeeName(value)
+                    }
+                }}
                 placeholder="Payee Name"
             />
 
@@ -92,7 +102,12 @@ export default function MakePayment() {
             <input
                 type="text"
                 value={payeeAccountNumber}
-                onChange={e => setPayeeAccountNumber(e.target.value)}
+                onChange={e => {
+                    const value = e.target.value
+                    if(value === '' || /^\d{9,12}$/.test(value)) {
+                        setPayeeAccountNumber(value)
+                    }
+                }}
                 placeholder="Payee Account Number"
             />
 
@@ -100,7 +115,12 @@ export default function MakePayment() {
             <input
                 type="text"
                 value={swiftCode}
-                onChange={e => setSwiftCode(e.target.value)}
+                onChange={e => {
+                    const value = e.target.value
+                    if(value === '' || /^[A-Za-z0-9]{8,11}$/.test(value)) {
+                        setSwiftCode(value)
+                    }
+                }}
                 placeholder="SWIFT Code"
             />
 
