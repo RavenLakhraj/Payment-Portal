@@ -2,7 +2,7 @@ import { ObjectId } from 'mongodb'
 
 import { addPayment, fetchPayments, updatePaymentStatus } from '../models/payment.js'
 
-const amountRegex = /^(?:[1-9]\d*|0?\.\d*[1-9]\d?)$/  
+const amountRegex = /^(?:[1-9]\d*|0?\.\d*[1-9]\d?)$/
 const payeeNameRegex = /^[A-Za-z\s-]+$/
 const payeeAccountNumberRegex = /^\d{9,12}$/
 const swiftCodeRegex = /^[A-Za-z0-9]{8,11}$/
@@ -84,7 +84,9 @@ export async function handleFetchPayments(req, res) {
         let query = {}
 
         //Allows user to filter by status
-        if (status) { query.status = status }
+        if (status && status !== '') {
+            query.status = status
+        }
         //Default status = pending
         else { query.status = 'Pending' }
 
