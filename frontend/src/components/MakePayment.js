@@ -14,8 +14,35 @@ export default function MakePayment() {
     const navigate = useNavigate()
     const token = localStorage.getItem('token')
 
+    const handleLogout = () => {
+        localStorage.removeItem('token')
+        navigate('/')
+    }    
+
     const handleSubmit = async (e) => {
         e.preventDefault()
+
+        //Regex patterns for frontend validation
+        const amountRegex = /^(?:[1-9]\d*|0?\.\d*[1-9]\d?)$/
+        const payeeNameRegex = /^[A-Za-z\s-]+$/
+        const payeeAccountNumberRegex = /^\d{9,12}$/
+        const swiftCodeRegex = /^[A-Za-z0-9]{8,11}$/
+
+        if(!amountRegex.test(amount)) {
+            setMessage('Invalid amount.')
+        }
+
+        if(!payeeNameRegex.test(payeeName)) {
+            setMessage('Invalid name.')
+        }
+
+        if(!payeeAccountNumberRegex.test(payeeAccountNumber)) {
+            setMessage('Invalid account number.')
+        }
+
+        if(!swiftCodeRegex.test(swiftCode)) {
+            setMessage('Invalid SWIFT code.')
+        }
 
         try {
             const response = await axios.post('https://localhost:2000/payments/make-payment',
@@ -53,12 +80,7 @@ export default function MakePayment() {
             <input
                 type="text"
                 value={amount}
-                onChange={e => {
-                    const value = e.target.value
-                    if(value === '' || /^(?:[1-9]\d*|0?\.\d*[1-9]\d?)$/.test(amount)) {
-                        setAmount(value)
-                    }
-                }}
+                onChange={(e) => setAmount(e.target.value)}
                 placeholder="Amount"
             />
 
@@ -89,12 +111,7 @@ export default function MakePayment() {
             <input
                 type="text"
                 value={payeeName}
-                onChange={e => {
-                    const value = e.target.value
-                    if(value === '' || /^[A-Za-z\s-]*$/.test(value)) {
-                        setPayeeName(value)
-                    }
-                }}
+                onChange={(e) => setPayeeName(e.target.value)}
                 placeholder="Payee Name"
             />
 
@@ -102,12 +119,7 @@ export default function MakePayment() {
             <input
                 type="text"
                 value={payeeAccountNumber}
-                onChange={e => {
-                    const value = e.target.value
-                    if(value === '' || /^\d{9,12}$/.test(value)) {
-                        setPayeeAccountNumber(value)
-                    }
-                }}
+                onChange={(e) => setPayeeAccountNumber(e.target.value)}
                 placeholder="Payee Account Number"
             />
 
@@ -115,16 +127,15 @@ export default function MakePayment() {
             <input
                 type="text"
                 value={swiftCode}
-                onChange={e => {
-                    const value = e.target.value
-                    if(value === '' || /^[A-Za-z0-9]{8,11}$/.test(value)) {
-                        setSwiftCode(value)
-                    }
-                }}
+                onChange={(e) => setSwiftCode(e.target.value)}
                 placeholder="SWIFT Code"
             />
 
             <button type="submit">Submit Payment</button>
+
+            <div>
+                <button onClick={handleLogout}>Logout</button>
+            </div>
             {message && <p>{message}</p>}
 
         </form>

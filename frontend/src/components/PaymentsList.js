@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
 export default function PaymentsList() {
@@ -7,6 +8,12 @@ export default function PaymentsList() {
     const [statusFilter, setStatusFilter] = useState('Pending')
 
     const token = localStorage.getItem('token')
+    const navigate = useNavigate()
+
+        const handleLogout = () => {
+        localStorage.removeItem('token')
+        navigate('/')
+    } 
 
     useEffect(() => {
         fetchPayments()
@@ -107,6 +114,10 @@ export default function PaymentsList() {
                     </tbody>
                 </table>
             )}
+
+            <div>
+                <button onClick={handleLogout}>Logout</button>
+            </div>
         </div>
     )
 }

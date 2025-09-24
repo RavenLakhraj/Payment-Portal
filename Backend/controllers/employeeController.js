@@ -7,7 +7,7 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=<>?{}[\]~]).{8,}$/
 const saltRounds = 10
 
-async function handleRegisterEmployee(req, res) {
+export async function handleRegisterEmployee(req, res) {
     try {
         const { fullName, email, password } = req.body
 
@@ -61,7 +61,7 @@ async function handleRegisterEmployee(req, res) {
     }
 }
 
-async function handleLoginEmployee(req, res) {
+export async function handleLoginEmployee(req, res) {
     try{
         const { email, password } = req.body
 
@@ -91,5 +91,3 @@ async function handleLoginEmployee(req, res) {
         return res.status(500).json({ message: 'Server error' })
     }
 }
-
-export { handleRegisterEmployee, handleLoginEmployee }

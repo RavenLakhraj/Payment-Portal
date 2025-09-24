@@ -9,7 +9,7 @@ const idNumberRegex = /^\d{13}$/
 const accountNumberRegex = /^\d{9,12}$/
 const saltRounds = 10
 
-async function handleRegisterCustomer(req, res) {
+export async function handleRegisterCustomer(req, res) {
     try {
         const { 
             fullName,
@@ -81,7 +81,7 @@ async function handleRegisterCustomer(req, res) {
     }
 }
 
-async function handleLoginCustomer(req, res) {
+export async function handleLoginCustomer(req, res) {
     try{
         const { email, accountNumber, password } = req.body
 
@@ -111,5 +111,3 @@ async function handleLoginCustomer(req, res) {
         return res.status(500).json({ message: 'Server error' })
     }
 }
-
-export { handleRegisterCustomer, handleLoginCustomer }

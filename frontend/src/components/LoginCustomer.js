@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate  } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { Link } from 'react-router-dom'
 
@@ -15,7 +15,7 @@ export default function LoginCustomer() {
     e.preventDefault()
 
     try {
-      const response = await axios.post('https://localhost:2000/customers/login', 
+      const response = await axios.post('https://localhost:2000/customers/login',
         { email, accountNumber, password })
 
       const data = response.data
@@ -31,8 +31,14 @@ export default function LoginCustomer() {
         setMessage(data.message)
       }
     } catch (err) {
+      if (err.response) {
+        setMessage(err.response.data.message || 'Login failed. Please try again.')
+      } else if (err.request) {
+        setMessage('Network error. Please check your connection.')
+      } else {
+        setMessage('Unexpected error. Please try again later.')
+      }
       console.error(err)
-      setMessage('Network error')
     }
   }
 
@@ -67,8 +73,12 @@ export default function LoginCustomer() {
         <button type="submit">Login</button>
       </form>
       <p>{message}</p>
-      <div> 
+      <div>
         <Link to="/register-customer">Don't have an account? Register now</Link>
+      </div>
+      <br />
+      <div>
+        <Link to="/">Back to Home</Link>
       </div>
     </div>
 

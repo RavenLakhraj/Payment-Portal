@@ -4,12 +4,12 @@ const db = client.db('Test')
 const customersCollection = db.collection('Customers')
 
 //Customer registration
-async function registerCustomer(customerData) {
+export async function registerCustomer(customerData) {
     return await customersCollection.insertOne(customerData)
 }
 
 //Checking if a customer with that email and account number exist
-async function checkCustomers(email, idNumber, accountNumber) {
+export async function checkCustomers(email, idNumber, accountNumber) {
     const query = {
         $or: [
             { email: email },
@@ -21,9 +21,6 @@ async function checkCustomers(email, idNumber, accountNumber) {
 }
 
 //Logging customer in
-async function loginCustomer(email, accountNumber) {
+export async function loginCustomer(email, accountNumber) {
     return await customersCollection.findOne({ email, accountNumber })
 }
-
-//Exporting functions
-export { registerCustomer, checkCustomers, loginCustomer }

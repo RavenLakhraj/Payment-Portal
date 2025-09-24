@@ -1,6 +1,6 @@
 import { useState } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
 import axios from 'axios'
-import { Link } from 'react-router-dom'
 
 export default function Register() {
   const [fullName, setFullName] = useState('')
@@ -10,8 +10,42 @@ export default function Register() {
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
 
+  const navigate = useNavigate()
+
   const handleSubmit = async (e) => {
     e.preventDefault()
+
+    //Regex patterns for frontend validation
+    const nameRegex = /^[A-Za-z\s-]+$/
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=<>?{}[\]~]).{8,}$/
+    const idRegex = /^\d{13}$/
+    const accountRegex = /^\d{9,12}$/
+
+    if (!nameRegex.test(fullName)) {
+      setMessage('Names may only contain letters and hyphens.')
+      return
+    }
+
+    if (!emailRegex.test(email)) {
+      setMessage('Invalid email format.')
+      return
+    }
+
+    if (!passwordRegex.test(password)) {
+      setMessage('Password must be a minimum of 8 characters long and include at least one uppercase letter, one lowercase letter, one digit, and one special character.')
+      return
+    }
+
+    if (!idRegex.test(idNumber)) {
+      setMessage('Invalid ID number.')
+      return
+    }
+
+    if (!accountRegex.test(accountNumber)) {
+      setMessage('Valid account numbers are between 9 and 12 digits long.')
+      return
+    }
 
     try {
       const response = await axios.post('https://localhost:2000/customers/register',
@@ -23,7 +57,7 @@ export default function Register() {
           password
         })
 
-      setMessage('Registration successful')
+      navigate('/login-customer')
       console.log(response.data)
     } catch (err) {
       if (err.response) {
@@ -44,12 +78,7 @@ export default function Register() {
           type="text"
           placeholder="John Doe"
           value={fullName}
-          onChange={(e) => {
-            const value = e.target.value
-            if (value === '' || /^[A-Za-z\s-]+$/.test(value)) {
-              setFullName(value)
-            }
-          }}
+          onChange={(e) => setFullName(e.target.value)}
           required
         />
         <br />
@@ -58,12 +87,7 @@ export default function Register() {
           type="email"
           placeholder="example@email.com"
           value={email}
-          onChange={(e) => {
-            const value = e.target.value
-            if (value === '' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-              setEmail(value)
-            }
-          }}
+          onChange={(e) => setEmail(e.target.value)}
           required
         />
         <br />
@@ -72,12 +96,7 @@ export default function Register() {
           type="password"
           placeholder="Password"
           value={password}
-          onChange={(e) => {
-            const value = e.target.value
-            if (value === '' || /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=<>?{}[\]~]).{8,}$/.test(value)) {
-              setPassword(value)
-            }
-          }}
+          onChange={(e) => setPassword(e.target.value)}
           required
         />
         <br />
@@ -86,12 +105,7 @@ export default function Register() {
           type="text"
           placeholder="ID Number"
           value={idNumber}
-          onChange={(e) => {
-            const value = e.target.value
-            if (value === '' || /^\d{13}$/.test(value)) {
-              setIdNumber(value)
-            }
-          }}
+          onChange={(e) => setIdNumber(e.target.value)}
           required
         />
         <br />
@@ -100,12 +114,7 @@ export default function Register() {
           type="text"
           placeholder="Account Number"
           value={accountNumber}
-          onChange={(e) => {
-            const value = e.target.value
-            if (value === '' || /^\d{9,12}$/.test(value)) {
-              setAccountNumber(value)
-            }
-          }}
+          onChange={(e) => setAccountNumber(e.target.value)}
           required
         />
         <br />

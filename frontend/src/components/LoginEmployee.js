@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate  } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import axios from 'axios'
 
 export default function LoginEmployee() {
@@ -57,6 +58,10 @@ export default function LoginEmployee() {
         <button type="submit">Login</button>
       </form>
       <p>{message}</p>
+            <br />
+      <div>
+        <Link to="/">Back to Home</Link>
+      </div>
     </div>
 
   )

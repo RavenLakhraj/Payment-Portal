@@ -4,19 +4,16 @@ const db = client.db('Test')
 const employeesCollection = db.collection('Employees')
 
 //Creating new employee
-async function registerEmployee(employeeCredentials) {
+export async function registerEmployee(employeeCredentials) {
     return await employeesCollection.insertOne(employeeCredentials)
 }
 
 //Checking if an employee with that email already exists
-async function checkEmployees(email) {
+export async function checkEmployees(email) {
     return await employeesCollection.countDocuments({ email }, { limit: 1 })
 }
 
 //Logging employee in
-async function loginEmployee(email) {
+export async function loginEmployee(email) {
     return await employeesCollection.findOne({ email })
 }
-
-//Exporting functions
-export { registerEmployee, checkEmployees, loginEmployee }
