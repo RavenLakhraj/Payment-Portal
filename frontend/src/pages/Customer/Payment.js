@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { PaymentForm } from "../../components/ui/payment-form";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
-import { Alert, AlertDescription } from "../../components/ui/alert";
+import Alert, { AlertDescription } from "../../components/ui/alert";
 import { ArrowLeft, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -80,7 +80,19 @@ export default function payment() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 p-4">
-      <div className="container mx-auto max-w-4xl pt-8">
+      <header style={{ backgroundColor: '#9ABD97' }} className="border-b border-border mb-6">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center">
+            <span className="text-lg font-bold text-black">AdAstra Bank</span>
+          </div>
+          <div className="text-right">
+            <p className="text-sm font-medium text-black">New International Payment</p>
+            <p className="text-xs text-black">Enter the payment details for international transfer</p>
+          </div>
+        </div>
+      </header>
+
+      <div className="container mx-auto max-w-4xl pt-2">
         <div className="mb-6">
           <Button variant="ghost" className="mb-4" component={Link} to="/customer/dashboard">
             <span className="flex items-center gap-2">
@@ -88,10 +100,6 @@ export default function payment() {
               Back to Dashboard
             </span>
           </Button>
-          <h1 className="text-3xl font-bold">New International Payment</h1>
-          <p className="text-muted-foreground mt-2">
-            Send secure international payments through our verified SWIFT network
-          </p>
         </div>
         <PaymentForm onSubmit={handlePaymentSubmit} />
       </div>

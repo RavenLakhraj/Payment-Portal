@@ -2,44 +2,98 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+  Color palette provided by user
+  CSS HEX
+  --jet: #2d2d2aff;
+  --davys-gray: #4c4c47ff;
+  --alice-blue: #e8f1f2ff;
+  --celadon: #b3efb2ff;
+  --cambridge-blue: #7a9e7eff;
+
+  CSS HSL (for reference)
+  --jet: hsla(60, 3%, 17%, 1);
+  --davys-gray: hsla(60, 3%, 29%, 1);
+  --alice-blue: hsla(186, 28%, 93%, 1);
+  --celadon: hsla(119, 66%, 82%, 1);
+  --cambridge-blue: hsla(127, 16%, 55%, 1);
+*/
+
+:root {
+  /* Base tokens (HEX) */
+  --jet: #2d2d2a;
+  --davys-gray: #4c4c47;
+  --alice-blue: #e8f1f2;
+  --celadon: #b3efb2;
+  --cambridge-blue: #7a9e7e;
+
+  /* Semantic tokens (light mode) */
+  --bg: var(--alice-blue);
+  --foreground: var(--jet);
+  --primary: var(--davys-gray);
+  --accent: var(--cambridge-blue);
+  --on-accent: #ffffff;
+  --muted: rgba(76,76,71,0.7);
+
+  /* Card specific tokens - keep cards white and text black even in dark mode */
+  --card-bg: #ffffff;
+  --card-border: #e6e6e6;
+  --card-foreground: var(--jet);
+}
+
+/* Dark mode mapping: invert background/foreground and use softer accents */
+.dark {
+  --bg: var(--jet);
+  --foreground: var(--alice-blue);
+  --primary: var(--davys-gray);
+  --accent: #8B9556; /* user-provided dark mode green */
+  --on-accent: #ffffff; /* ensure button text is white in dark mode */
+  --muted: #6b6b6b;
+
+  /* Keep card appearance consistent (white background, black text) */
+  --card-bg: #ffffff;
+  --card-border: #3a3a36;
+  --card-foreground: var(--jet);
+}
+
+/* Ensure the document uses our semantic tokens for readable text */
+html, body, #__next {
+  background-color: var(--bg);
+  color: var(--foreground);
+}
+
+a { color: var(--primary); }
+
+/* utility classes used in the app to map to variables */
+.bg-background { background-color: var(--bg); }
+.text-foreground { color: var(--foreground); }
+.text-primary { color: var(--primary); }
+.text-muted-foreground { color: var(--muted); }
+.bg-accent { background-color: var(--accent); }
+.text-on-accent { color: var(--on-accent); }
+
+/* keep existing global styles below */
 /* Global styles */
+
+/* Card-specific overrides to ensure readability in dark mode */
+.card label {
+  color: var(--card-foreground);
+}
+.card .text-foreground {
+  color: var(--card-foreground);
+}
+.card input,
+.card textarea,
+.card select {
+  color: var(--card-foreground);
+  background-color: transparent;
+  border-color: #dcdcdc;
+}
+.card .text-muted-foreground {
+  color: rgba(0,0,0,0.6);
+}
 .App {
   text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 .App-logo {

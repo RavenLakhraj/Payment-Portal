@@ -1,75 +1,55 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
-import { Link } from 'react-router-dom'
-import './App.css';  // contains @tailwind directives
-
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import axios from "axios";
 
 export default function LoginCustomer() {
-  const [email, setEmail] = useState('')
-  const [accountNumber, setAccountNumber] = useState('')
-  const [password, setPassword] = useState('')
-  const [message, setMessage] = useState('')
+  const [email, setEmail] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     try {
-      const response = await axios.post('https://localhost:2000/customers/login',
-        { email, accountNumber, password })
+      const response = await axios.post("https://localhost:2000/customers/login", {
+        email,
+        accountNumber,
+        password,
+      });
 
-      const data = response.data
+      const data = response.data;
 
       if (response.status === 200) {
-        setMessage(data.message)
-        localStorage.setItem('token', data.token)
-        const role = data.role
-
-        navigate('/customers/payment')
-
+        setMessage(data.message);
+        localStorage.setItem("token", data.token);
+        navigate("/customers/payment");
       } else {
-        setMessage(data.message)
+        setMessage(data.message);
       }
     } catch (err) {
       if (err.response) {
-        setMessage(err.response.data.message || 'Login failed. Please try again.')
+        setMessage(err.response.data.message || "Login failed. Please try again.");
       } else if (err.request) {
-        setMessage('Network error. Please check your connection.')
+        setMessage("Network error. Please check your connection.");
       } else {
-        setMessage('Unexpected error. Please try again later.')
+        setMessage("Unexpected error. Please try again later.");
       }
-      console.error(err)
+      console.error(err);
     }
-  }
+  };
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '100vh',
-      fontFamily: 'Arial, sans-serif',
-      backgroundColor: '#f5f5f5',
-      padding: '20px'
-    }}>
-      <h1 style={{ marginBottom: '30px', color: '#333' }}>Customer Login</h1>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
+      {/* Title */}
+      <h1 className="text-3xl font-bold text-gray-800 mb-8">Customer Login</h1>
 
+      {/* Login Form */}
       <form
         onSubmit={handleSubmit}
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '15px',
-          backgroundColor: '#fff',
-          padding: '30px',
-          borderRadius: '8px',
-          boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-          width: '100%',
-          maxWidth: '400px'
-        }}
+        className="flex flex-col gap-4 bg-white p-8 rounded-lg shadow-lg w-full max-w-md"
       >
         <input
           type="email"
@@ -77,12 +57,7 @@ export default function LoginCustomer() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          style={{
-            padding: '10px',
-            borderRadius: '6px',
-            border: '1px solid #ccc',
-            fontSize: '16px'
-          }}
+          className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
         />
 
         <input
@@ -91,12 +66,7 @@ export default function LoginCustomer() {
           value={accountNumber}
           onChange={(e) => setAccountNumber(e.target.value)}
           required
-          style={{
-            padding: '10px',
-            borderRadius: '6px',
-            border: '1px solid #ccc',
-            fontSize: '16px'
-          }}
+          className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
         />
 
         <input
@@ -105,45 +75,30 @@ export default function LoginCustomer() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          style={{
-            padding: '10px',
-            borderRadius: '6px',
-            border: '1px solid #ccc',
-            fontSize: '16px'
-          }}
+          className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
         />
 
         <button
           type="submit"
-          style={{
-            padding: '12px',
-            borderRadius: '6px',
-            border: 'none',
-            backgroundColor: '#007bff',
-            color: '#fff',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            fontSize: '16px'
-          }}
+          className="py-3 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition"
         >
           Login
         </button>
       </form>
 
-      {message && <p style={{ marginTop: '15px', color: 'red' }}>{message}</p>}
+      {/* Message */}
+      {message && <p className="mt-4 text-red-600">{message}</p>}
 
-      <div style={{ marginTop: '20px' }}>
-        <Link to="/register-customer" style={{ color: '#007bff', textDecoration: 'none' }}>
-          Don't have an account? Register now
+      {/* Links */}
+      <div className="mt-6 space-y-2 text-center">
+        <Link to="/register-customer" className="text-blue-600 hover:underline block">
+          Don’t have an account? Register now
         </Link>
-      </div>
 
-      <div style={{ marginTop: '10px' }}>
-        <Link to="/" style={{ color: '#007bff', textDecoration: 'none' }}>
-          Back to Home
+        <Link to="/" className="text-gray-600 hover:underline flex items-center justify-center gap-1">
+          ← Back to Home
         </Link>
       </div>
     </div>
-  )
-
+  );
 }

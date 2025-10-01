@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',
   content: [
     "./src/**/*.{js,jsx,ts,tsx}", // scan all files in src
     "./pages/**/*.{js,jsx,ts,tsx}", // if using Next.js pages directory

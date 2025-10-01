@@ -2,12 +2,12 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
-import { Badge } from "../../components/ui/badge";
+import Badge from "../../components/ui/badge";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { Textarea } from "../../components/ui/textarea";
-import { Alert, AlertDescription } from "../../components/ui/alert";
+import Alert, { AlertDescription } from "../../components/ui/alert";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../../components/ui/dialog";
 import { Shield, LogOut, Plus, DollarSign, Globe, User, CheckCircle, Clock, XCircle, CreditCard, ArrowRight } from "lucide-react";
 
@@ -15,9 +15,11 @@ export default function dashboard() {
   const [payments, setPayments] = useState([]);
   const [showNewPayment, setShowNewPayment] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [userName, setUserName] = useState('');
+  const [userAccount, setUserAccount] = useState('');
   const [newPayment, setNewPayment] = useState({
     amount: "",
-    currency: "USD",
+    currency: "ZAR",
     recipientName: "",
     recipientAccount: "",
     swiftCode: "",
@@ -27,12 +29,37 @@ export default function dashboard() {
 
   // Mock data - in real app this would come from API
   useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
+    const tokenRaw = localStorage.getItem("authToken");
+    if (!tokenRaw) {
       console.log("[v0] No auth token found, redirecting to login");
       window.location.href = "/customer/login";
       return;
     }
+
+    // try to parse token; if it contains customerId, load user info
+    try {
+      const parsed = JSON.parse(tokenRaw);
+      if (parsed && parsed.customerId) {
+        const usersRaw = localStorage.getItem('ads_users');
+        const users = usersRaw ? JSON.parse(usersRaw) : [];
+        const found = users.find(u => u.customerId === parsed.customerId);
+        if (found) {
+          setUserName(found.name);
+          setUserAccount(found.customerId);
+        }
+      }
+    } catch (e) {
+      // token not JSON (maybe a mock string); fallback to lastRegistered
+      try {
+        const last = localStorage.getItem('ads_lastRegistered');
+        if (last) {
+          const parsedLast = JSON.parse(last);
+          setUserName(parsedLast.name || '');
+          setUserAccount(parsedLast.customerId || '');
+        }
+      } catch (er) {}
+    }
+
     const mockPayments = [
       {
         id: "PAY001",
@@ -140,7 +167,7 @@ export default function dashboard() {
       setPayments((prev) => [payment, ...prev]);
       setNewPayment({
         amount: "",
-        currency: "USD",
+        currency: "ZAR",
         recipientName: "",
         recipientAccount: "",
         swiftCode: "",
@@ -185,23 +212,23 @@ export default function dashboard() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border bg-card">
+      <header style={{ backgroundColor: '#9ABD97' }} className="border-b border-border">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Shield className="h-8 w-8 text-primary" />
+              <Shield className="h-8 w-8 text-black" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Customer Portal</h1>
-                <p className="text-sm text-muted-foreground">International Payment Dashboard</p>
+                <h1 className="text-2xl font-bold text-black">Customer Portal</h1>
+                <p className="text-sm text-black">International Payment Dashboard</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-right">
-                <p className="text-sm font-medium text-foreground">John Smith</p>
-                <p className="text-xs text-muted-foreground">Account: 1234567890</p>
+                <p className="text-sm font-medium text-black">{userName || 'John Smith'}</p>
+                <p className="text-xs text-black">Account: {userAccount || '1234567890'}</p>
               </div>
-              <Button variant="outline" size="sm" onClick={handleLogout}>
-                <LogOut className="h-4 w-4 mr-2" />
+              <Button variant="ghost" size="sm" onClick={handleLogout} className="text-black">
+                <LogOut className="h-4 w-4 mr-2 text-black" />
                 Logout
               </Button>
             </div>
@@ -215,10 +242,9 @@ export default function dashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Payments</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${totalAmount.toLocaleString()}</div>
+              <div className="text-2xl font-bold">R {totalAmount.toLocaleString()}</div>
               <p className="text-xs text-muted-foreground">All currencies combined</p>
             </CardContent>
           </Card>
@@ -248,7 +274,6 @@ export default function dashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">New Payment</CardTitle>
-              <Plus className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <Dialog open={showNewPayment} onOpenChange={setShowNewPayment}>
@@ -259,9 +284,15 @@ export default function dashboard() {
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-2xl">
-                  <DialogHeader>
-                    <DialogTitle>New International Payment</DialogTitle>
-                    <DialogDescription>Enter the payment details for international transfer</DialogDescription>
+                  <DialogHeader className="flex items-center justify-between">
+                    <div className="flex-shrink-0">
+                      <Button variant="ghost" size="sm" onClick={() => setShowNewPayment(false)}>Back</Button>
+                    </div>
+                    <div className="flex-1 text-center">
+                      <DialogTitle className="text-lg font-semibold">New International Payment</DialogTitle>
+                      <DialogDescription className="text-sm text-muted-foreground">Enter the payment details for international transfer</DialogDescription>
+                    </div>
+                    <div className="w-16" />
                   </DialogHeader>
                   <form onSubmit={handleSubmitPayment} className="space-y-4">
                     {errors.general && (
@@ -270,7 +301,7 @@ export default function dashboard() {
                       </Alert>
                     )}
 
-                    <div className="grid md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="amount">Amount</Label>
                         <Input
@@ -302,8 +333,7 @@ export default function dashboard() {
                             <SelectItem value="EUR">EUR - Euro</SelectItem>
                             <SelectItem value="GBP">GBP - British Pound</SelectItem>
                             <SelectItem value="JPY">JPY - Japanese Yen</SelectItem>
-                            <SelectItem value="CAD">CAD - Canadian Dollar</SelectItem>
-                            <SelectItem value="AUD">AUD - Australian Dollar</SelectItem>
+                            <SelectItem value="ZAR">ZAR - South African Rand</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -455,6 +485,12 @@ export default function dashboard() {
           </CardContent>
         </Card>
       </div>
+
+      <footer style={{ backgroundColor: '#9ABD97' }} className="mt-8">
+        <div className="container mx-auto px-4 py-4 text-center">
+          <p className="text-sm text-black">© AdAstra Bank — International Payments</p>
+        </div>
+      </footer>
     </div>
   )
 }

@@ -5,7 +5,7 @@ import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
-import { Alert, AlertDescription } from "../../components/ui/alert";
+import Alert, { AlertDescription } from "../../components/ui/alert";
 import { Shield, Eye, EyeOff, ArrowLeft, Lock } from "lucide-react";
 
 export default function logincustomer() {
@@ -84,8 +84,8 @@ export default function logincustomer() {
             Back to Home
           </Link>
           <div className="flex items-center justify-center mb-4">
-            <Shield className="h-8 w-8 text-primary mr-2" />
-            <h1 className="text-2xl font-bold text-foreground">SecureBank</h1>
+            <Shield className="h-8 w-8 mr-2" style={{color:'var(--primary)'}} />
+            <h1 className="text-2xl font-bold text-foreground">AdAstra Bank</h1>
           </div>
           <div className="flex items-center justify-center space-x-2 text-sm text-success">
             <Lock className="h-4 w-4" />

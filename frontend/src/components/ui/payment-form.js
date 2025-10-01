@@ -5,7 +5,7 @@ import { Input } from "./input";
 import { Label } from "./label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select";
 import { Textarea } from "./textarea";
-import { Alert, AlertDescription } from "./alert";
+import Alert, { AlertDescription } from "./alert";
 import { currencies, swiftProviders } from "./mock-data";
 import { Shield, CreditCard, Globe, CheckCircle } from "lucide-react";
 
@@ -13,7 +13,7 @@ export function PaymentForm({ onSubmit }) {
   const [step, setStep] = useState(1)
   const [formData, setFormData] = useState({
     amount: "",
-    currency: "",
+    currency: "ZAR",
     provider: "",
     recipientName: "",
     recipientAccount: "",
@@ -130,7 +130,7 @@ export function PaymentForm({ onSubmit }) {
     // Reset form
     setFormData({
       amount: "",
-      currency: "",
+      currency: "ZAR",
       provider: "",
       recipientName: "",
       recipientAccount: "",
@@ -142,7 +142,7 @@ export function PaymentForm({ onSubmit }) {
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
+    <Card className="w-full max-w-2xl mx-auto max-h-[70vh] overflow-y-auto">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <CreditCard className="h-5 w-5" />
@@ -155,7 +155,7 @@ export function PaymentForm({ onSubmit }) {
       <CardContent className="space-y-6">
         {step === 1 && (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="amount">Amount *</Label>
                 <Input

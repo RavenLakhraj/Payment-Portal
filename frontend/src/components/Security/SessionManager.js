@@ -1,6 +1,5 @@
-
 import { useEffect, useState } from "react";
-import { Alert, AlertDescription } from "../ui/alert";
+import Alert, { AlertDescription } from "../ui/alert";
 import { Button } from "../ui/button";
 import { Shield, AlertTriangle } from "lucide-react";
 

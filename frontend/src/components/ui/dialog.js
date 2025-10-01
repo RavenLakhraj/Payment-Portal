@@ -1,29 +1,74 @@
-import React, { useState } from "react";
+import React, { useState, createContext, useContext } from "react";
 import clsx from "clsx";
 
-function Dialog({ title, children, triggerLabel }) {
-  const [isOpen, setIsOpen] = useState(false);
+// DialogContext: provides open state and onOpenChange
+const DialogContext = createContext(null);
+
+// Dialog: supports controlled (open,onOpenChange) or uncontrolled usage
+function Dialog({ open: openProp, onOpenChange, children }) {
+  const [openState, setOpenState] = useState(false);
+  const isControlled = typeof openProp !== "undefined";
+  const open = isControlled ? openProp : openState;
+  const setOpen = (v) => {
+    if (isControlled) {
+      onOpenChange && onOpenChange(v);
+    } else {
+      setOpenState(v);
+    }
+  };
+
   return (
-    <>
-      <button onClick={() => setIsOpen(true)} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">{triggerLabel}</button>
-      {isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setIsOpen(false)}>
-          <div className={clsx("bg-white rounded-lg shadow-lg w-full max-w-md p-6", "relative")} onClick={e => e.stopPropagation()}>
-            <h2 className="text-lg font-semibold mb-4">{title}</h2>
-            <div className="mb-4">{children}</div>
-            <div className="flex justify-end space-x-2">
-              <button onClick={() => setIsOpen(false)} className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300">Close</button>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+    <DialogContext.Provider value={{ open, onOpenChange: setOpen }}>
+      {children}
+    </DialogContext.Provider>
   );
 }
-function DialogTrigger({ children, ...props }) { return <button {...props}>{children}</button>; }
-function DialogContent({ children, ...props }) { return <div {...props}>{children}</div>; }
-function DialogHeader({ children, ...props }) { return <div {...props}>{children}</div>; }
-function DialogTitle({ children, ...props }) { return <h3 {...props}>{children}</h3>; }
-function DialogDescription({ children, ...props }) { return <p {...props}>{children}</p>; }
+
+function DialogTrigger({ children, asChild = false, ...props }) {
+  const ctx = useContext(DialogContext);
+  const handleOpen = () => ctx && ctx.onOpenChange && ctx.onOpenChange(true);
+
+  if (asChild && React.isValidElement(children)) {
+    // Merge onClick with existing child's onClick
+    const childOnClick = children.props.onClick;
+    const merged = (e) => {
+      childOnClick && childOnClick(e);
+      handleOpen();
+    };
+    const childProps = { ...props, onClick: merged };
+    delete childProps.asChild;
+    return React.cloneElement(children, childProps);
+  }
+
+  const filtered = { ...props };
+  delete filtered.asChild;
+  return (
+    <button {...filtered} onClick={handleOpen}>
+      {children}
+    </button>
+  );
+}
+
+function DialogContent({ children, className, ...props }) {
+  const ctx = useContext(DialogContext);
+  if (!ctx || !ctx.open) return null;
+  return (
+    <div className={clsx("fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50", className)} onClick={() => ctx.onOpenChange(false)} {...props}>
+      <div className="rounded-lg shadow-lg w-full max-w-2xl p-6 relative max-h-[80vh] overflow-y-auto card" onClick={(e) => e.stopPropagation()} style={{ backgroundColor: "var(--card-bg)" }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function DialogHeader({ children, ...props }) {
+  return <div {...props}>{children}</div>;
+}
+function DialogTitle({ children, ...props }) {
+  return <h3 {...props}>{children}</h3>;
+}
+function DialogDescription({ children, ...props }) {
+  return <p {...props}>{children}</p>;
+}
 
 export { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription };
