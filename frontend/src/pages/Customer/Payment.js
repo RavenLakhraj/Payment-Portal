@@ -1,4 +1,5 @@
 // ...existing code...
+import '../../../App.css';  // contains @tailwind directives
 import React, { useState } from "react";
 import { PaymentForm } from "../../components/ui/payment-form";
 import { Button } from "../../components/ui/button";

@@ -1,3 +1,4 @@
+import '../../../App.css';  // contains @tailwind directives
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "../../components/ui/button";
