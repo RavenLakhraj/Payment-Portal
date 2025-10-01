@@ -1,3 +1,4 @@
+// ...existing code...
 import { useEffect } from "react";
   // Mock: Simulate existing account numbers (replace with API call in real app)
   const existingAccountNumbers = new Set([
@@ -44,7 +45,7 @@ import { Alert, AlertDescription } from "../../components/ui/alert";
 import { Checkbox } from "../../components/ui/checkbox";
 import { Shield, Eye, EyeOff, ArrowLeft, Lock, CheckCircle } from "lucide-react";
 
-export default function CustomerRegister() {
+export default function register() {
   const [formData, setFormData] = useState({
     fullName: "",
     idNumber: "",

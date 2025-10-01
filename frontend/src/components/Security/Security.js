@@ -1,7 +1,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
-import CSPHeader from "./CSPHeader";
-import SessionManager from "./SessionManager";
+import CSPHeader from "./cspHeader";
+import SessionManager from "./sessionManager";
 
 const SecurityContext = createContext({
   isSecure: false,

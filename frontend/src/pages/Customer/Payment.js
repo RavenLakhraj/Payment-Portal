@@ -1,3 +1,4 @@
+// ...existing code...
 import React, { useState } from "react";
 import { PaymentForm } from "../../components/ui/payment-form";
 import { Button } from "../../components/ui/button";
@@ -6,7 +7,7 @@ import { Alert, AlertDescription } from "../../components/ui/alert";
 import { ArrowLeft, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
-export default function PaymentPage() {
+export default function payment() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [submittedPayment, setSubmittedPayment] = useState(null);
 

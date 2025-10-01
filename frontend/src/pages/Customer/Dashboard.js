@@ -1,3 +1,4 @@
+// ...existing code...
 import React, { useState, useEffect } from "react";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
@@ -10,7 +11,7 @@ import { Alert, AlertDescription } from "../../components/ui/alert";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../../components/ui/dialog";
 import { Shield, LogOut, Plus, DollarSign, Globe, User, CheckCircle, Clock, XCircle, CreditCard, ArrowRight } from "lucide-react";
 
-export default function CustomerDashboard() {
+export default function dashboard() {
   const [payments, setPayments] = useState([]);
   const [showNewPayment, setShowNewPayment] = useState(false);
   const [isLoading, setIsLoading] = useState(false);

@@ -8,7 +8,7 @@ import { Textarea } from "../../components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../../components/ui/dialog";
 import { Shield, LogOut, Search, CheckCircle, XCircle, Clock, DollarSign, Globe, User, AlertTriangle } from "lucide-react";
 
-export default function EmployeeDashboard() {
+export default function dashboard() {
   const [payments, setPayments] = useState([]);
   const [filteredPayments, setFilteredPayments] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");

@@ -7,7 +7,7 @@ import { Label } from "../../components/ui/label";
 import { Alert, AlertDescription } from "../../components/ui/alert";
 import { Shield, Eye, EyeOff, ArrowLeft, Lock } from "lucide-react";
 
-export default function CustomerLogin() {
+export default function logincustomer() {
   const [formData, setFormData] = useState({
     username: "",
     accountNumber: "",
