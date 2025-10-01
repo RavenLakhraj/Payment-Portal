@@ -1,3 +1,39 @@
+import { useEffect } from "react";
+  // Mock: Simulate existing account numbers (replace with API call in real app)
+  const existingAccountNumbers = new Set([
+    "123456789",
+    "9876543210",
+    "111222333444",
+    "555666777888",
+    "123123123123"
+  ]);
+
+  // Helper to generate a random 9-12 digit account number
+  const generateAccountNumber = () => {
+    const length = Math.floor(Math.random() * 4) + 9; // 9-12 digits
+    let num = "";
+    for (let i = 0; i < length; i++) {
+      num += Math.floor(Math.random() * 10);
+    }
+    return num;
+  };
+
+  // Generate a unique account number
+  const generateUniqueAccountNumber = () => {
+    let accountNumber;
+    let attempts = 0;
+    do {
+      accountNumber = generateAccountNumber();
+      attempts++;
+      // In a real app, replace this check with an API call
+    } while (existingAccountNumbers.has(accountNumber) && attempts < 100);
+    return accountNumber;
+  };
+
+  // Set unique account number on mount
+  useEffect(() => {
+    setFormData((prev) => ({ ...prev, accountNumber: generateUniqueAccountNumber() }));
+  }, []);
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "../../components/ui/button";

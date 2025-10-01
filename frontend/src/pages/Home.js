@@ -1,13 +1,12 @@
 
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import Link from "next/link";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Alert, AlertDescription } from "../components/ui/alert";
 import { Shield, Eye, EyeOff, ArrowLeft, Lock, Building } from "lucide-react";
-
 
 export default function Home() {
   const [formData, setFormData] = useState({
@@ -17,7 +16,6 @@ export default function Home() {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
 
   const validateInput = (name, value) => {
     const patterns = {
@@ -62,9 +60,11 @@ export default function Home() {
     try {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      localStorage.setItem("authToken", "mock-employee-token");
-      console.log("[v0] Employee login successful, token set");
-      navigate("/employee/dashboard");
+      if (typeof window !== "undefined") {
+        localStorage.setItem("authToken", "mock-employee-token");
+      }
+      // Next.js navigation (replace with useRouter if you want to redirect)
+      window.location.href = "/employee/dashboard";
     } catch (error) {
       setErrors({ general: "Login failed. Please check your credentials." });
     } finally {
@@ -77,7 +77,7 @@ export default function Home() {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-4">
+          <Link href="/" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-4">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home
           </Link>
@@ -158,7 +158,7 @@ export default function Home() {
             <div className="mt-6 text-center">
               <p className="text-sm text-muted-foreground">
                 {"Are you a customer? "}
-                <Link to="/customer/login" className="text-primary hover:underline">
+                <Link href="/customer/login" className="text-primary hover:underline">
                   Customer Login
                 </Link>
               </p>
