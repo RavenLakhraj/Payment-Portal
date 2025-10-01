@@ -30,8 +30,8 @@ export default function LoginEmployee() {
         setMessage(data.message)
       }
     } catch (err) {
-      console.error(err)
-      setMessage('Network error')
+      console.error("AXIOS ERROR:", err); // <-- ADD THIS
+      setMessage(err.response?.data?.message || 'Network error');
     }
   }
 
