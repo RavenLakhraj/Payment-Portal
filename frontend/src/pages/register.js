@@ -7,28 +7,80 @@ import { Label } from '../components/ui/label';
 import { Button } from '../components/ui/button';
 import Alert, { AlertDescription } from '../components/ui/alert';
 
-// Register page
-// - Collects user information for account creation (demo uses localStorage)
-// - Validates basic presence of fields and prevents duplicate customerId/email
-// - Redirects to the customer login page and pre-fills the Customer ID on success
+// Register page - updated per requirements
+// - Collects full name, South African ID (13 digits YYMMDDSSSSCAZ), savings account number (8-12 digits), email, password
+// - Validates formats and prevents duplicates (by accountNumber or email)
+// - Redirects to the customer login page with accountNumber prefill on success
 export default function Register() {
   const router = useRouter();
-  const [form, setForm] = useState({ name: '', email: '', customerId: '', password: '' });
+  const [form, setForm] = useState({ fullName: '', idNumber: '', accountNumber: '', email: '', password: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
+  const validateIdNumber = (id) => {
+    const digits = String(id || '').replace(/\D/g, '');
+    if (!/^\d{13}$/.test(digits)) return false;
+    // basic YYMMDD date validation for first 6 digits
+    const yy = parseInt(digits.slice(0, 2), 10);
+    const mm = parseInt(digits.slice(2, 4), 10);
+    const dd = parseInt(digits.slice(4, 6), 10);
+    if (mm < 1 || mm > 12) return false;
+    if (dd < 1 || dd > 31) return false;
+    return true;
+  };
+
+  const validateAccountNumber = (acc) => /^\d{8,12}$/.test(acc);
+  const validateEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+  const validatePassword = (p) => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(p);
+
   // Update form state on input change
-  const handleChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+  const formatIdNumberInput = (value) => {
+    const digits = String(value).replace(/\D/g, '').slice(0, 13);
+    const p1 = digits.slice(0, 4);
+    const p2 = digits.slice(4, 8);
+    const p3 = digits.slice(8, 13);
+    return [p1, p2, p3].filter(Boolean).join(' ');
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === 'idNumber') {
+      const formatted = formatIdNumberInput(value);
+      setForm((f) => ({ ...f, idNumber: formatted }));
+    } else if (name === 'fullName') {
+      // allow spaces while typing; only sanitize harmful characters
+      const sanitized = value.replace(/[<>"'&]/g, '');
+      setForm((f) => ({ ...f, fullName: sanitized }));
+    } else {
+      setForm((f) => ({ ...f, [name]: value.trim() }));
+    }
+  };
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    const { name, email, customerId, password } = form;
+    const { fullName, idNumber, accountNumber, email, password } = form;
 
-    // Basic client-side validation (presence)
-    if (!name || !email || !customerId || !password) {
-      setError('Please fill all fields');
+    // Validate inputs
+    if (!fullName || fullName.length < 2) {
+      setError('Please enter your full name (2+ characters)');
+      return;
+    }
+    if (!validateIdNumber(idNumber)) {
+      setError('Please enter a valid South African ID number (13 digits, YYMMDD...)');
+      return;
+    }
+    if (!validateAccountNumber(accountNumber)) {
+      setError('Please enter a valid savings account number (8-12 digits)');
+      return;
+    }
+    if (!validateEmail(email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+    if (!validatePassword(password)) {
+      setError('Password must be at least 8 characters and include uppercase, lowercase, number and special character');
       return;
     }
 
@@ -39,24 +91,24 @@ export default function Register() {
       const raw = localStorage.getItem('ads_users');
       const users = raw ? JSON.parse(raw) : [];
 
-      // Prevent duplicates by customer ID or email
-      const exists = users.find((u) => u.customerId === customerId || u.email === email);
+      // Prevent duplicates by accountNumber or email
+      const exists = users.find((u) => u.accountNumber === accountNumber || u.email === email);
       if (exists) {
-        setError('An account with that Customer ID or Email already exists');
+        setError('An account with that Account Number or Email already exists');
         setIsSubmitting(false);
         return;
       }
 
-      const user = { name, email, customerId, password };
+      const user = { fullName, name: fullName, email, accountNumber, idNumber, password };
       users.push(user);
       localStorage.setItem('ads_users', JSON.stringify(users));
-      localStorage.setItem('ads_lastRegistered', JSON.stringify({ customerId, name }));
+      localStorage.setItem('ads_lastRegistered', JSON.stringify({ accountNumber, fullName }));
 
       // simulate API delay
       await new Promise((r) => setTimeout(r, 700));
 
       // Redirect to customer login with prefill param
-      router.push(`/customer/login?registered=true&customerId=${encodeURIComponent(customerId)}`);
+      router.push(`/customer/login?registered=true&accountNumber=${encodeURIComponent(accountNumber)}`);
     } catch (err) {
       setError('Registration failed. Please try again.');
       setIsSubmitting(false);
@@ -98,17 +150,25 @@ export default function Register() {
             {/* registration form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
-                <Input id="name" name="name" value={form.name} onChange={handleChange} placeholder="Jane Doe" required />
+                <Label htmlFor="fullName">Full Name</Label>
+                <Input id="fullName" name="fullName" value={form.fullName} onChange={handleChange} placeholder="Jane Doe" required />
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="idNumber">Enter 13 digit ID number</Label>
+                <Input id="idNumber" name="idNumber" value={form.idNumber} onChange={handleChange} placeholder="---- ---- -----" maxLength={15} required />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="accountNumber">Savings Account Number</Label>
+                <Input id="accountNumber" name="accountNumber" value={form.accountNumber} onChange={handleChange} placeholder="8-12 digit account number" required />
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input id="email" name="email" type="email" value={form.email} onChange={handleChange} placeholder="you@example.com" required />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="customerId">Customer ID</Label>
-                <Input id="customerId" name="customerId" value={form.customerId} onChange={handleChange} placeholder="CUST123456" required />
-              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <Input id="password" name="password" type="password" value={form.password} onChange={handleChange} placeholder="Create a strong password" required />

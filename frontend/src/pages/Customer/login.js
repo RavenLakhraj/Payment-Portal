@@ -9,31 +9,31 @@ import { Button } from "../../components/ui/button";
 import Alert, { AlertDescription } from "../../components/ui/alert";
 
 // Customer Login page
-// - Accepts Customer ID and password
-// - If redirected from registration, shows a success message and pre-fills Customer ID
+// - Accepts savings account number OR email and password
+// - If redirected from registration, shows a success message and pre-fills the identifier
 // - Authenticates against demo localStorage user store and redirects to dashboard on success
 export default function login() {
   const router = useRouter();
-  const [customerId, setCustomerId] = useState("");
+  const [identifier, setIdentifier] = useState(""); // account number or email
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
 
-  // Read query params and try to prefill the Customer ID if available
+  // Read query params and try to prefill the identifier if available
   useEffect(() => {
     if (!router.isReady) return;
-    const { registered, customerId: cid } = router.query;
+    const { registered, accountNumber: acc } = router.query;
     if (registered) {
       setMessage('Registration successful. Please sign in.');
     }
-    if (cid) {
-      setCustomerId(String(cid));
+    if (acc) {
+      setIdentifier(String(acc));
     } else {
-      // fallback: try to read last registered customer from localStorage
+      // fallback: try to read last registered account from localStorage
       try {
         const last = localStorage.getItem('ads_lastRegistered');
         if (last) {
           const parsed = JSON.parse(last);
-          if (parsed.customerId) setCustomerId(parsed.customerId);
+          if (parsed.accountNumber) setIdentifier(parsed.accountNumber);
         }
       } catch (e) {}
     }
@@ -46,10 +46,10 @@ export default function login() {
     try {
       const raw = localStorage.getItem('ads_users');
       const users = raw ? JSON.parse(raw) : [];
-      const found = users.find((u) => u.customerId === customerId && u.password === password);
+      const found = users.find((u) => (u.accountNumber === identifier || u.email === identifier) && u.password === password);
       if (found) {
         // store a simple auth token and redirect
-        localStorage.setItem('authToken', JSON.stringify({ type: 'customer', customerId }));
+        localStorage.setItem('authToken', JSON.stringify({ type: 'customer', accountNumber: found.accountNumber }));
         router.push('/customer/dashboard');
       } else {
         setMessage('Invalid credentials');
@@ -93,8 +93,8 @@ export default function login() {
             )}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="customerId">Customer ID</Label>
-                <Input id="customerId" name="customerId" type="text" placeholder="CUST123456" value={customerId} onChange={(e) => setCustomerId(e.target.value)} required />
+                <Label htmlFor="identifier">Account Number or Email</Label>
+                <Input id="identifier" name="identifier" type="text" placeholder="account number or email" value={identifier} onChange={(e) => setIdentifier(e.target.value)} required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>

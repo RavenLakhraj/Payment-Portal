@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
-import { Badge } from "../../components/ui/badge";
+import Badge from "../../components/ui/badge";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Textarea } from "../../components/ui/textarea";
@@ -17,9 +17,22 @@ export default function dashboard() {
   const [rejectionReason, setRejectionReason] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Mock data - in real app this would come from API
+  // Load payments from localStorage (employees should see all customer-created payments)
   useEffect(() => {
-  const mockPayments = [
+    try {
+      const raw = localStorage.getItem('ads_payments');
+      const stored = raw ? JSON.parse(raw) : null;
+      if (Array.isArray(stored) && stored.length > 0) {
+        setPayments(stored);
+        setFilteredPayments(stored);
+        return;
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    // fallback sample data if none present
+    const mockPayments = [
       {
         id: "PAY001",
         customerName: "John Smith",
@@ -33,36 +46,10 @@ export default function dashboard() {
         createdAt: "2025-01-15T10:30:00Z",
         description: "Business payment for services",
       },
-      {
-        id: "PAY002",
-        customerName: "Alice Johnson",
-        accountNumber: "2345678901",
-        amount: 2500,
-        currency: "EUR",
-        recipientName: "Bob Wilson",
-        recipientAccount: "8765432109",
-        swiftCode: "DEUTDEFF500",
-        status: "pending",
-        createdAt: "2025-01-15T11:15:00Z",
-        description: "Invoice payment",
-      },
-      {
-        id: "PAY003",
-        customerName: "Mike Brown",
-        accountNumber: "3456789012",
-        amount: 1200,
-        currency: "GBP",
-        recipientName: "Sarah Davis",
-        recipientAccount: "7654321098",
-        swiftCode: "BARCGB22XXX",
-        status: "verified",
-        createdAt: "2025-01-15T09:45:00Z",
-        description: "Personal transfer",
-      },
-    ]
-    setPayments(mockPayments)
-    setFilteredPayments(mockPayments)
-  }, [])
+    ];
+    setPayments(mockPayments);
+    setFilteredPayments(mockPayments);
+  }, []);
 
   // Filter payments based on search and status
   useEffect(() => {
@@ -87,12 +74,11 @@ export default function dashboard() {
   const handleVerifyPayment = async (paymentId) => {
     setIsLoading(true)
     try {
-      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      setPayments((prev) =>
-        prev.map((payment) => (payment.id === paymentId ? { ...payment, status: "verified" } : payment))
-      );
+      const updated = payments.map((payment) => (payment.id === paymentId ? { ...payment, status: 'verified' } : payment));
+      setPayments(updated);
+      setFilteredPayments(updated);
+      try { localStorage.setItem('ads_payments', JSON.stringify(updated)); } catch (e) {}
     } catch (error) {
       console.error("Failed to verify payment:", error)
     } finally {
@@ -103,13 +89,12 @@ export default function dashboard() {
   const handleRejectPayment = async (paymentId, reason) => {
     setIsLoading(true)
     try {
-      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      setPayments((prev) =>
-        prev.map((payment) => (payment.id === paymentId ? { ...payment, status: "rejected" } : payment))
-      );
-      setRejectionReason("")
+      const updated = payments.map((payment) => (payment.id === paymentId ? { ...payment, status: 'rejected' } : payment));
+      setPayments(updated);
+      setFilteredPayments(updated);
+      try { localStorage.setItem('ads_payments', JSON.stringify(updated)); } catch (e) {}
+      setRejectionReason('')
       setSelectedPayment(null)
     } catch (error) {
       console.error("Failed to reject payment:", error)
@@ -119,23 +104,23 @@ export default function dashboard() {
   }
 
   const handleSubmitToSwift = async () => {
-    const verifiedPayments = payments.filter((p) => p.status === "verified")
+    const verifiedPayments = payments.filter((p) => p.status === 'verified')
     if (verifiedPayments.length === 0) return
 
     setIsLoading(true)
     try {
-      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 2000))
-
-      setPayments((prev) =>
-        prev.map((payment) => (payment.status === "verified" ? { ...payment, status: "submitted" } : payment))
-      );
+      const updated = payments.map((payment) => (payment.status === 'verified' ? { ...payment, status: 'submitted' } : payment));
+      setPayments(updated);
+      setFilteredPayments(updated);
+      try { localStorage.setItem('ads_payments', JSON.stringify(updated)); } catch (e) {}
     } catch (error) {
       console.error("Failed to submit to SWIFT:", error)
     } finally {
       setIsLoading(false)
     }
   }
+
 
   const getStatusBadge = (status) => {
     const variants = {
@@ -226,13 +211,15 @@ export default function dashboard() {
               <Globe className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <Button
-                onClick={handleSubmitToSwift}
-                disabled={verifiedCount === 0 || isLoading}
-                className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
-              >
-                Submit {verifiedCount} to SWIFT
-              </Button>
+              <div className="flex flex-col gap-2">
+                <Button
+                  onClick={handleSubmitToSwift}
+                  disabled={verifiedCount === 0 || isLoading}
+                  className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+                >
+                  Submit {verifiedCount} to SWIFT
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -407,6 +394,17 @@ export default function dashboard() {
                   </CardContent>
                 </Card>
               )}
+            </div>
+            {/* Clear transactions button at bottom of Payment Transactions */}
+            <div className="mt-4 flex justify-end">
+              <Button variant="destructive" onClick={() => {
+                if (!confirm('Are you sure you want to delete ALL transactions? This cannot be undone.')) return;
+                try { localStorage.removeItem('ads_payments'); } catch (e) {}
+                setPayments([]);
+                setFilteredPayments([]);
+              }}>
+                Clear Transactions
+              </Button>
             </div>
           </CardContent>
         </Card>

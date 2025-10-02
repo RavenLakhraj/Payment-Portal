@@ -14,7 +14,7 @@ import Alert, { AlertDescription } from "../../components/ui/alert";
 import { Shield, Eye, EyeOff, ArrowLeft, Lock, Building } from "lucide-react";
 
 export default function EmployeeLogin() {
-  const [formData, setFormData] = useState({ employeeId: "", password: "" });
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -22,12 +22,12 @@ export default function EmployeeLogin() {
 
   const validateInput = (name, value) => {
     const patterns = {
-      employeeId: /^EMP[0-9]{6}$/,
+      email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
       password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
     };
     if (!patterns[name]?.test(value)) {
       return {
-        employeeId: "Employee ID must be in format EMP123456",
+        email: "Please enter a valid company email address",
         password: "Password must be 8+ characters with uppercase, lowercase, number and special character",
       }[name];
     }
@@ -57,11 +57,19 @@ export default function EmployeeLogin() {
     }
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000)); // mock API
-      localStorage.setItem("authToken", "mock-employee-token");
-      router.push("/employee/dashboard");
+      // check against stored employees in localStorage
+      const raw = localStorage.getItem('ads_employees');
+      const employees = raw ? JSON.parse(raw) : [];
+      const found = employees.find((u) => u.email === formData.email && u.password === formData.password);
+      await new Promise((resolve) => setTimeout(resolve, 800)); // mock API
+      if (found) {
+        localStorage.setItem('authToken', JSON.stringify({ type: 'employee', email: found.email }));
+        router.push('/employee/dashboard');
+      } else {
+        setErrors({ general: 'Invalid credentials' });
+      }
     } catch (error) {
-      setErrors({ general: "Login failed. Please check your credentials." });
+      setErrors({ general: 'Login failed. Please check your credentials.' });
     } finally {
       setIsLoading(false);
     }
@@ -99,19 +107,19 @@ export default function EmployeeLogin() {
                 <Alert variant="destructive"><AlertDescription>{errors.general}</AlertDescription></Alert>
               )}
 
-              {/* Employee ID */}
+              {/* Employee Email */}
               <div className="space-y-2">
-                <Label htmlFor="employeeId">Employee ID</Label>
+                <Label htmlFor="email">Employee Email</Label>
                 <Input
-                  id="employeeId"
-                  name="employeeId"
-                  value={formData.employeeId}
+                  id="email"
+                  name="email"
+                  value={formData.email}
                   onChange={handleInputChange}
-                  placeholder="EMP123456"
-                  className={errors.employeeId ? "border-destructive" : ""}
+                  placeholder="name@company.com"
+                  className={errors.email ? "border-destructive" : ""}
                   required
                 />
-                {errors.employeeId && <p className="text-sm text-destructive">{errors.employeeId}</p>}
+                {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
               </div>
 
               {/* Password */}

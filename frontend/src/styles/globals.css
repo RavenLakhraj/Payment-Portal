@@ -46,7 +46,7 @@
   --bg: var(--jet);
   --foreground: var(--alice-blue);
   --primary: var(--davys-gray);
-  --accent: #8B9556; /* user-provided dark mode green */
+  --accent: #9ABD97; /* customer login green in dark mode */
   --on-accent: #ffffff; /* ensure button text is white in dark mode */
   --muted: #6b6b6b;
 

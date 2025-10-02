@@ -13,7 +13,7 @@ dotenv.config()
 
 const app = express()
 const port = process.env.PORT
-
+//Dont remove this, it is needed for CORS
 app.use(cors())
 
 //Middleware
@@ -24,7 +24,7 @@ app.use('/payments', paymentRoutes)
 
 //Test route
 app.get("/", (_, res) => {
-  res.send("🚀 HTTPS server is running securely!")
+  res.send("HTTPS server is running securely!")
 })
 
 //Create HTTPS server

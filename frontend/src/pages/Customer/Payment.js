@@ -80,14 +80,14 @@ export default function payment() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 p-4">
-      <header style={{ backgroundColor: '#9ABD97' }} className="border-b border-border mb-6">
+      <header className="border-b border-border mb-6 bg-accent">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center">
-            <span className="text-lg font-bold text-black">AdAstra Bank</span>
+            <span className="text-lg font-bold text-black dark:text-on-accent">AdAstra Bank</span>
           </div>
           <div className="text-right">
-            <p className="text-sm font-medium text-black">New International Payment</p>
-            <p className="text-xs text-black">Enter the payment details for international transfer</p>
+            <p className="text-sm font-medium text-black dark:text-on-accent">New International Payment</p>
+            <p className="text-xs text-black dark:text-on-accent">Enter the payment details for international transfer</p>
           </div>
         </div>
       </header>

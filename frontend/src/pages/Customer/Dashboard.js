@@ -27,7 +27,7 @@ export default function dashboard() {
   });
   const [errors, setErrors] = useState({});
 
-  // Mock data - in real app this would come from API
+  // Load payments from localStorage (remove hardcoded mock data)
   useEffect(() => {
     const tokenRaw = localStorage.getItem("authToken");
     if (!tokenRaw) {
@@ -36,16 +36,16 @@ export default function dashboard() {
       return;
     }
 
-    // try to parse token; if it contains customerId, load user info
+    // try to parse token; if it contains accountNumber, load user info
     try {
       const parsed = JSON.parse(tokenRaw);
-      if (parsed && parsed.customerId) {
+      if (parsed && parsed.accountNumber) {
         const usersRaw = localStorage.getItem('ads_users');
         const users = usersRaw ? JSON.parse(usersRaw) : [];
-        const found = users.find(u => u.customerId === parsed.customerId);
+        const found = users.find(u => u.accountNumber === parsed.accountNumber);
         if (found) {
-          setUserName(found.name);
-          setUserAccount(found.customerId);
+          setUserName(found.name || found.fullName || '');
+          setUserAccount(found.accountNumber);
         }
       }
     } catch (e) {
@@ -54,55 +54,32 @@ export default function dashboard() {
         const last = localStorage.getItem('ads_lastRegistered');
         if (last) {
           const parsedLast = JSON.parse(last);
-          setUserName(parsedLast.name || '');
-          setUserAccount(parsedLast.customerId || '');
+          setUserName(parsedLast.fullName || parsedLast.name || '');
+          setUserAccount(parsedLast.accountNumber || '');
         }
       } catch (er) {}
     }
 
-    const mockPayments = [
-      {
-        id: "PAY001",
-        amount: 5000,
-        currency: "USD",
-        recipientName: "Jane Doe",
-        recipientAccount: "9876543210",
-        swiftCode: "ABCDUS33XXX",
-        status: "pending",
-        createdAt: "2025-01-15T10:30:00Z",
-        description: "Business payment for services",
-      },
-      {
-        id: "PAY002",
-        amount: 1200,
-        currency: "EUR",
-        recipientName: "Bob Wilson",
-        recipientAccount: "8765432109",
-        swiftCode: "DEUTDEFF500",
-        status: "verified",
-        createdAt: "2025-01-14T11:15:00Z",
-        description: "Invoice payment",
-      },
-      {
-        id: "PAY003",
-        amount: 800,
-        currency: "GBP",
-        recipientName: "Sarah Davis",
-        recipientAccount: "7654321098",
-        swiftCode: "BARCGB22XXX",
-        status: "submitted",
-        createdAt: "2025-01-13T09:45:00Z",
-        description: "Personal transfer",
-      },
-    ];
-    setPayments(mockPayments);
+    try {
+      const raw = localStorage.getItem('ads_payments');
+      const stored = raw ? JSON.parse(raw) : [];
+      // Filter out demo payments (PAY001..PAY003)
+      const filtered = (Array.isArray(stored) ? stored : []).filter(p => !/^PAY00[1-3]$/.test(p.id));
+      setPayments(filtered);
+      // persist filtered to avoid showing them again
+      try { localStorage.setItem('ads_payments', JSON.stringify(filtered)); } catch (e) {}
+    } catch (err) {
+      setPayments([]);
+    }
   }, []);
+
+
 
   const validatePaymentInput = (name, value) => {
     const patterns = {
       amount: /^\d+(\.\d{1,2})?$/,
       recipientName: /^[a-zA-Z\s]{2,50}$/,
-      recipientAccount: /^[0-9]{10,16}$/,
+      recipientAccount: /^[0-9]{8,16}$/,
       swiftCode: /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/,
       description: /^[a-zA-Z0-9\s.,!?-]{5,200}$/,
     };
@@ -112,11 +89,14 @@ export default function dashboard() {
         return "Amount must be between 0.01 and 1,000,000";
       }
     }
+    // Allow empty SWIFT (optional) — only validate if provided
+    if (name === 'swiftCode' && String(value).trim() === '') return '';
+
     if (!patterns[name]?.test(value)) {
       return (
         {
           recipientName: "Recipient name must be 2-50 characters, letters and spaces only",
-          recipientAccount: "Account number must be 10-16 digits",
+          recipientAccount: "Account number must be 8-16 digits",
           swiftCode: "SWIFT code must be 8 or 11 characters (e.g., ABCDUS33XXX)",
           description: "Description must be 5-200 characters, alphanumeric and basic punctuation only",
         }[name] || "Invalid input"
@@ -127,7 +107,7 @@ export default function dashboard() {
 
   const handlePaymentInputChange = (name, value) => {
     // Input sanitization
-    const sanitizedValue = value.replace(/[<>"'&]/g, "");
+    const sanitizedValue = String(value).replace(/[<>"'&]/g, "");
     setNewPayment((prev) => ({ ...prev, [name]: sanitizedValue }));
     // Real-time validation
     const error = validatePaymentInput(name, sanitizedValue);
@@ -164,7 +144,11 @@ export default function dashboard() {
         createdAt: new Date().toISOString(),
         description: newPayment.description,
       };
-      setPayments((prev) => [payment, ...prev]);
+      setPayments((prev) => {
+        const next = [payment, ...prev];
+        try { localStorage.setItem('ads_payments', JSON.stringify(next)); } catch (e) {}
+        return next;
+      });
       setNewPayment({
         amount: "",
         currency: "ZAR",
@@ -212,23 +196,23 @@ export default function dashboard() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header style={{ backgroundColor: '#9ABD97' }} className="border-b border-border">
+      <header className="border-b border-border bg-accent">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Shield className="h-8 w-8 text-black" />
+              <Shield className="h-8 w-8 text-black dark:text-on-accent" />
               <div>
-                <h1 className="text-2xl font-bold text-black">Customer Portal</h1>
-                <p className="text-sm text-black">International Payment Dashboard</p>
+                <h1 className="text-2xl font-bold text-black dark:text-on-accent">Customer Portal</h1>
+                <p className="text-sm text-black dark:text-on-accent">International Payment Dashboard</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-right">
-                <p className="text-sm font-medium text-black">{userName || 'John Smith'}</p>
-                <p className="text-xs text-black">Account: {userAccount || '1234567890'}</p>
+                <p className="text-sm font-medium text-black dark:text-on-accent">{userName || 'John Smith'}</p>
+                <p className="text-xs text-black dark:text-on-accent">Account: {userAccount || '1234567890'}</p>
               </div>
-              <Button variant="ghost" size="sm" onClick={handleLogout} className="text-black">
-                <LogOut className="h-4 w-4 mr-2 text-black" />
+              <Button variant="ghost" size="sm" onClick={handleLogout} className="text-black dark:text-on-accent">
+                <LogOut className="h-4 w-4 mr-2 text-black dark:text-on-accent" />
                 Logout
               </Button>
             </div>
@@ -374,7 +358,6 @@ export default function dashboard() {
                         placeholder="ABCDUS33XXX"
                         className={errors.swiftCode ? "border-destructive" : ""}
                         maxLength={11}
-                        required
                       />
                       {errors.swiftCode && <p className="text-sm text-destructive">{errors.swiftCode}</p>}
                     </div>
@@ -411,9 +394,11 @@ export default function dashboard() {
 
         {/* Payments List */}
         <Card>
-          <CardHeader>
-            <CardTitle>Your Payment Transactions</CardTitle>
-            <CardDescription>Track the status of your international payments</CardDescription>
+          <CardHeader className="flex items-center justify-between">
+            <div>
+              <CardTitle>Your Payment Transactions</CardTitle>
+              <CardDescription>Track the status of your international payments</CardDescription>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -486,9 +471,9 @@ export default function dashboard() {
         </Card>
       </div>
 
-      <footer style={{ backgroundColor: '#9ABD97' }} className="mt-8">
+      <footer className="mt-8 bg-accent">
         <div className="container mx-auto px-4 py-4 text-center">
-          <p className="text-sm text-black">© AdAstra Bank — International Payments</p>
+          <p className="text-sm text-black dark:text-on-accent">© AdAstra Bank — International Payments</p>
         </div>
       </footer>
     </div>

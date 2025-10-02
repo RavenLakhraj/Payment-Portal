@@ -2,8 +2,8 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/customer/dashboard": "pages/customer/dashboard.js",
   "/": "pages/index.js",
+  "/employee/login": "pages/employee/login.js",
   "/customer/login": "pages/customer/login.js",
-  "/employee/login": "pages/employee/login.js"
+  "/employee/dashboard": "pages/employee/dashboard.js"
 }
