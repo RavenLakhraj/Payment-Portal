@@ -29,11 +29,6 @@ self.__BUILD_MANIFEST = {
       "static/chunks/main.js",
       "static/chunks/pages/customer/login.js"
     ],
-    "/employee/dashboard": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/employee/dashboard.js"
-    ],
     "/employee/login": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
