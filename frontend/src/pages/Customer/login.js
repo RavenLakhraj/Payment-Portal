@@ -72,21 +72,33 @@ export default function login() {
    * 
    * @param {React.FormEvent} e - Form submission event
    */
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // simple auth against localStorage users for demo purposes
+    setMessage('');
     try {
-      const raw = localStorage.getItem('ads_users');
-      const users = raw ? JSON.parse(raw) : [];
-      const found = users.find((u) => (u.accountNumber === identifier || u.email === identifier) && u.password === password);
-      if (found) {
-        // store a simple auth token and redirect
-        localStorage.setItem('authToken', JSON.stringify({ type: 'customer', accountNumber: found.accountNumber }));
+      const payload = {
+        accountNumber: identifier && identifier.match(/^\d+$/) ? identifier : undefined,
+        email: identifier && identifier.includes('@') ? identifier : undefined,
+        password,
+      };
+
+      const res = await fetch('/api/customers/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        credentials: 'include',
+      });
+
+      if (res.status === 200) {
+        // Login succeeded; backend set HttpOnly cookie; redirect to dashboard
         router.push('/customer/dashboard');
-      } else {
-        setMessage('Invalid credentials');
+        return;
       }
+
+      const body = await res.json().catch(() => ({}));
+      setMessage(body.message || 'Invalid credentials');
     } catch (err) {
+      console.error(err);
       setMessage('Login failed');
     }
   };

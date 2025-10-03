@@ -4,6 +4,12 @@ import { useEffect } from "react"
 
 export default function CSPHeader() {
   useEffect(() => {
+    // Clickjacking Prevention:
+    // 1. frame-ancestors 'none' - Prevents the app from being embedded in iframes
+    // 2. X-Frame-Options: DENY - Legacy browser support for iframe prevention
+    // 3. default-src 'self' - Restricts resource loading to same origin
+    // These headers work together to prevent attackers from embedding the site in malicious frames
+    
     const meta = document.createElement("meta")
     meta.httpEquiv = "Content-Security-Policy"
     meta.content =

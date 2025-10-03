@@ -40,6 +40,9 @@ export default function SessionManager({ children }) {
 
     resetSessionTimer();
 
+    // Anti-Session Hijacking: Generate browser fingerprint to detect session theft
+    // This creates a unique identifier based on browser characteristics
+    // If the fingerprint changes during a session, it may indicate session theft
     const generateFingerprint = () => {
       return btoa(
         JSON.stringify({

@@ -1,0 +1,7 @@
+2025-10-03T15:00:57.566Z PROXY_ERROR: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+2025-10-03T15:04:12.914Z PROXY_ERROR: Error: connect ECONNREFUSED 127.0.0.1:2000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+2025-10-03T15:10:13.682Z PROXY_ERROR: Error: connect ECONNREFUSED 127.0.0.1:2001
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)

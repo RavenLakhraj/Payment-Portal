@@ -1,5 +1,12 @@
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { ArrowLeft, Shield, Lock, Building, Eye, EyeOff } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../../components/ui/card";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
+import { Button } from "../../components/ui/button";
+import Alert, { AlertDescription } from "../../components/ui/alert";
 
 /**
  * Employee Login Component
@@ -87,18 +94,22 @@ export default function EmployeeLogin() {
     }
 
     try {
-      // Check against stored employees in localStorage
-      const raw = localStorage.getItem('ads_employees');
-      const employees = raw ? JSON.parse(raw) : [];
-      const found = employees.find((u) => u.email === formData.email && u.password === formData.password);
-      await new Promise((resolve) => setTimeout(resolve, 800)); // mock API
-      if (found) {
-        localStorage.setItem('authToken', JSON.stringify({ type: 'employee', email: found.email }));
+      // Call backend API
+      const res = await fetch('/api/employees/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email: formData.email, password: formData.password }),
+      });
+
+      if (res.status === 200) {
         router.push('/employee/dashboard');
       } else {
-        setErrors({ general: 'Invalid credentials' });
+        const body = await res.json().catch(() => ({}));
+        setErrors({ general: body.message || 'Invalid credentials' });
       }
     } catch (error) {
+      console.error(error);
       setErrors({ general: 'Login failed. Please check your credentials.' });
     } finally {
       setIsLoading(false);

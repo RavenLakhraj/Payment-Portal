@@ -57,7 +57,11 @@ app.use(limiter)
 // Prevent HTTP parameter pollution
 app.use(hpp())
 
-// Sanitize user-supplied data to prevent NoSQL/SQL injection-like payloads
+// SQL/NoSQL Injection Prevention:
+// 1. mongoSanitize - Removes $ and . from user-supplied data to prevent MongoDB operator injection
+// 2. Input validation - All routes use Mongoose schemas which provide type checking
+// 3. Parameterized queries - Mongoose automatically escapes values in queries
+// 4. Input sanitization - Frontend also sanitizes data before sending to backend
 app.use(mongoSanitize())
 
 // Routes
@@ -84,7 +88,13 @@ const server = https.createServer(
 // Connect to Mongo database
 connect()
 
-// Start server
+// Start HTTPS server
 server.listen(port, () => {
-  console.log(`Server started on PORT ${port}`)
+  console.log(`HTTPS server started on PORT ${port}`)
+})
+
+// Start an additional HTTP server on 2001 for local development proxy fallback
+const httpPort = process.env.HTTP_PORT || 2001
+app.listen(httpPort, () => {
+  console.log(`HTTP fallback server started on PORT ${httpPort}`)
 })

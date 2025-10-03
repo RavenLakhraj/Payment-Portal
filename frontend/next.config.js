@@ -4,7 +4,11 @@ const isProd = process.env.NODE_ENV === 'production';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Add HTTP security headers to mitigate clickjacking and related attacks
+  // Clickjacking Prevention:
+  // 1. X-Frame-Options: DENY - Prevents any website from embedding this site in frames
+  // 2. frame-ancestors 'none' in CSP - Modern browsers protection against iframe embedding
+  // 3. Content-Security-Policy headers - Comprehensive resource loading restrictions
+  // These headers are sent on every response to enforce frame embedding restrictions
   async headers() {
     // Build a CSP that blocks framing (clickjacking), limits sources, and is dev-friendly
     const csp = [
@@ -40,6 +44,14 @@ const nextConfig = {
       {
         source: '/:path*',
         headers,
+      },
+    ];
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'https://localhost:2000/:path*',
       },
     ];
   },

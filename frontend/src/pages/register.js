@@ -144,29 +144,46 @@ export default function Register() {
     setIsSubmitting(true);
 
     try {
-      // Persist to localStorage for demo purposes
-      const raw = localStorage.getItem('ads_users');
-      const users = raw ? JSON.parse(raw) : [];
+      // Send registration to backend API
+      const payload = {
+        fullName,
+        idNumber: String(idNumber).replace(/\s+/g, ''),
+        accountNumber,
+        email,
+        password,
+      };
 
-      // Prevent duplicates by accountNumber or email
-      const exists = users.find((u) => u.accountNumber === accountNumber || u.email === email);
-      if (exists) {
-        setError('An account with that Account Number or Email already exists');
-        setIsSubmitting(false);
+      const res = await fetch('/api/customers/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        credentials: 'include',
+      });
+
+      if (res.status === 201) {
+        // store last registered locally for UX convenience
+        localStorage.setItem('ads_lastRegistered', JSON.stringify({ accountNumber, fullName }));
+        router.push(`/customer/login?registered=true&accountNumber=${encodeURIComponent(accountNumber)}`);
         return;
       }
 
-      const user = { fullName, name: fullName, email, accountNumber, idNumber, password };
-      users.push(user);
-      localStorage.setItem('ads_users', JSON.stringify(users));
-      localStorage.setItem('ads_lastRegistered', JSON.stringify({ accountNumber, fullName }));
-
-      // Simulate API delay
-      await new Promise((r) => setTimeout(r, 700));
-
-      // Redirect to customer login with prefill param
-      router.push(`/customer/login?registered=true&accountNumber=${encodeURIComponent(accountNumber)}`);
+      // Try to parse JSON, otherwise read text for better error visibility
+      let bodyText = '';
+      try {
+        const body = await res.json();
+        bodyText = body.message || JSON.stringify(body);
+      } catch (e) {
+        try {
+          bodyText = await res.text();
+        } catch (e2) {
+          bodyText = 'Unknown error from server';
+        }
+      }
+      console.error('Registration failed', res.status, bodyText);
+      setError(`Registration failed (${res.status}): ${bodyText}`);
+      setIsSubmitting(false);
     } catch (err) {
+      console.error(err);
       setError('Registration failed. Please try again.');
       setIsSubmitting(false);
     }

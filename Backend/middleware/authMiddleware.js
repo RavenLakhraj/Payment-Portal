@@ -1,6 +1,12 @@
 import jwt from 'jsonwebtoken'
 
 export function authMiddleware(req, res, next) {
+    // Session Hijacking Prevention:
+    // 1. Primarily uses HttpOnly cookies - cannot be accessed by JavaScript
+    // 2. Secure flag ensures cookie only sent over HTTPS
+    // 3. SameSite=strict prevents CSRF and cookie theft via cross-origin requests
+    // 4. Short expiration time (1h) limits window of vulnerability
+    
     // Support JWT in secure HttpOnly cookie first, then fall back to Authorization header
     const cookieToken = req.cookies?.token
     const header = req.headers.authorization
