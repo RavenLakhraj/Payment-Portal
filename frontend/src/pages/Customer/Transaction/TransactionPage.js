@@ -17,12 +17,19 @@ export default function TransactionsPage() {
 
   // Filter payments based on search and status
   const filteredPayments = mockPayments.filter((payment) => {
+    const q = (searchTerm || '').toLowerCase();
     const matchesSearch =
-      payment.recipientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.id.toLowerCase().includes(searchTerm.toLowerCase())
+      String(payment.recipientName || '').toLowerCase().includes(q) ||
+      String(payment.id || '').toLowerCase().includes(q)
     const matchesStatus = statusFilter === "all" || payment.status === statusFilter
     return matchesSearch && matchesStatus
   })
+
+  const currencyFractionDigits = (cur) => ({ JPY: 0, KRW: 0, default: 2 }[cur] ?? 2);
+  const formatAmount = (value, currency) => {
+    const digits = currencyFractionDigits(currency);
+    return new Intl.NumberFormat('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(Number(value) || 0);
+  }
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -131,7 +138,7 @@ export default function TransactionsPage() {
                         </TableCell>
                         <TableCell>
                           <div className="font-medium">
-                            {payment.amount.toLocaleString()} {payment.currency}
+                            {formatAmount(payment.amount, payment.currency)} {payment.currency}
                           </div>
                         </TableCell>
                         <TableCell>
@@ -176,7 +183,7 @@ export default function TransactionsPage() {
                       <div>
                         Amount:{" "}
                         <span className="font-medium">
-                          {selectedPayment.amount.toLocaleString()} {selectedPayment.currency}
+                          {formatAmount(selectedPayment.amount, selectedPayment.currency)} {selectedPayment.currency}
                         </span>
                       </div>
                       <div>

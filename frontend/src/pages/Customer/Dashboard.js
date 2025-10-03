@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Textarea } from "../../components/ui/textarea";
 import Alert, { AlertDescription } from "../../components/ui/alert";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../../components/ui/dialog";
-import { Shield, LogOut, Plus, DollarSign, Globe, User, CheckCircle, Clock, XCircle, CreditCard, ArrowRight } from "lucide-react";
+import { Shield, LogOut, Plus, Globe, User, CheckCircle, Clock, XCircle, CreditCard, ArrowRight } from "lucide-react";
 
 export default function dashboard() {
   const [payments, setPayments] = useState([]);
@@ -182,9 +182,38 @@ export default function dashboard() {
     );
   };
 
-  const totalAmount = payments.reduce((sum, p) => sum + p.amount, 0);
+  // previous total (combined) left for reference but we'll show per-currency rotating totals
+  const totalAmount = payments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
   const pendingCount = payments.filter((p) => p.status === "pending").length;
   const completedCount = payments.filter((p) => p.status === "submitted").length;
+
+  // Compute totals per currency for rotating display
+  const totalsByCurrency = payments.reduce((acc, p) => {
+    const cur = p.currency || 'ZAR';
+    acc[cur] = (acc[cur] || 0) + (Number(p.amount) || 0);
+    return acc;
+  }, {});
+  const currencies = Object.keys(totalsByCurrency).length ? Object.keys(totalsByCurrency) : ['ZAR'];
+
+  const [currentCurrencyIndex, setCurrentCurrencyIndex] = useState(0);
+  const [isRotationPaused, setIsRotationPaused] = useState(false);
+
+  useEffect(() => {
+    setCurrentCurrencyIndex(0);
+  }, [payments.length]);
+
+  useEffect(() => {
+    if (isRotationPaused) return;
+    if (currencies.length <= 1) return;
+    const id = setInterval(() => {
+      setCurrentCurrencyIndex((i) => (i + 1) % currencies.length);
+    }, 5000);
+    return () => clearInterval(id);
+  }, [currencies, isRotationPaused]);
+
+  const currentCurrency = currencies[currentCurrencyIndex] || 'ZAR';
+  const currentTotal = totalsByCurrency[currentCurrency] || 0;
+  const formatByCurrency = (value, currency) => new Intl.NumberFormat(currency === 'ZAR' ? 'en-ZA' : 'en-US', { style: 'currency', currency }).format(value || 0);
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
@@ -223,13 +252,14 @@ export default function dashboard() {
       <div className="container mx-auto px-4 py-8">
         {/* Stats Cards */}
         <div className="grid md:grid-cols-4 gap-6 mb-8">
-          <Card>
+          <Card onClick={() => setIsRotationPaused((p) => !p)} className="cursor-pointer">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Payments</CardTitle>
+              <span className="text-xs font-medium text-muted-foreground">{currentCurrency}</span>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">R {totalAmount.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">All currencies combined</p>
+              <div className="text-2xl font-bold">{formatByCurrency(currentTotal, currentCurrency)}</div>
+              <p className="text-xs text-muted-foreground">Showing totals for <strong>{currentCurrency}</strong>. {isRotationPaused ? 'Paused — click to resume' : 'Rotating every 5s — click to pause'}</p>
             </CardContent>
           </Card>
 
@@ -419,8 +449,7 @@ export default function dashboard() {
                     <div className="grid md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <div className="flex items-center text-2xl font-bold">
-                          <DollarSign className="h-6 w-6 mr-2 text-primary" />
-                          {payment.amount.toLocaleString()} {payment.currency}
+                          {formatByCurrency(payment.amount, payment.currency)}
                         </div>
                         <p className="text-sm text-muted-foreground">Payment Amount</p>
                       </div>
