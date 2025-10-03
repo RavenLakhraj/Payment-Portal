@@ -1,23 +1,51 @@
-// ...existing code...
-import { useEffect } from "react";
-  // Mock: Simulate existing account numbers (replace with API call in real app)
-  const existingAccountNumbers = new Set([
-    "123456789",
-    "9876543210",
-    "111222333444",
-    "555666777888",
-    "123123123123"
-  ]);
+/**
+ * Customer Registration Component
+ * Allows users to create a secure account for international payments.
+ *
+ * Features:
+ * - Real-time input validation
+ * - Password strength indicator
+ * - Terms and conditions acceptance
+ * - Secure data submission to MongoDB backend
+ *
+ * @component
+ * @returns {JSX.Element} Rendered registration form
+ */
 
-  // Helper to generate a random 9-12 digit account number
-  const generateAccountNumber = () => {
-    const length = Math.floor(Math.random() * 4) + 9; // 9-12 digits
-    let num = "";
-    for (let i = 0; i < length; i++) {
-      num += Math.floor(Math.random() * 10);
-    }
-    return num;
-  };
+import React, { useEffect, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { Button } from "../../components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
+import Alert, { AlertDescription } from "../../components/ui/alert";
+import { Checkbox } from "../../components/ui/checkbox";
+import { Shield, Eye, EyeOff, ArrowLeft, Lock, CheckCircle } from "lucide-react";
+
+export default function register() {
+  // State management
+  /** @state {Object} formData - Stores user input for registration fields */
+  const [formData, setFormData] = useState({
+    fullName: "",
+    idNumber: "",
+    accountNumber: "",
+    username: "",
+    password: "",
+    confirmPassword: "",
+  });
+  /** @state {boolean} showPassword - Toggles visibility of the password field */
+  const [showPassword, setShowPassword] = useState(false);
+  /** @state {boolean} showConfirmPassword - Toggles visibility of the confirm password field */
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  /** @state {boolean} acceptTerms - Tracks whether the user has accepted terms and conditions */
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  /** @state {Object} errors - Stores validation errors for each form field */
+  const [errors, setErrors] = useState({});
+  /** @state {boolean} isLoading - Indicates whether the form submission is in progress */
+  const [isLoading, setIsLoading] = useState(false);
+  /** @state {number} passwordStrength - Tracks the strength of the entered password */
+  const [passwordStrength, setPasswordStrength] = useState(0);
+  const navigate = useNavigate();
 
   // Generate a unique account number
   const generateUniqueAccountNumber = () => {
@@ -35,33 +63,14 @@ import { useEffect } from "react";
   useEffect(() => {
     setFormData((prev) => ({ ...prev, accountNumber: generateUniqueAccountNumber() }));
   }, []);
-import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { Button } from "../../components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
-import { Input } from "../../components/ui/input";
-import { Label } from "../../components/ui/label";
-import Alert, { AlertDescription } from "../../components/ui/alert";
-import { Checkbox } from "../../components/ui/checkbox";
-import { Shield, Eye, EyeOff, ArrowLeft, Lock, CheckCircle } from "lucide-react";
 
-export default function register() {
-  const [formData, setFormData] = useState({
-    fullName: "",
-    idNumber: "",
-    accountNumber: "",
-    username: "",
-    password: "",
-    confirmPassword: "",
-  });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [acceptTerms, setAcceptTerms] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [passwordStrength, setPasswordStrength] = useState(0);
-  const navigate = useNavigate();
-
+  /**
+   * Validates form input against predefined patterns
+   *
+   * @param {string} name - Field name to validate (e.g., fullName, idNumber, password)
+   * @param {string} value - Input value to validate
+   * @returns {string} Error message if validation fails, empty string if valid
+   */
   const validateInput = (name, value) => {
     const patterns = {
       fullName: /^[a-zA-Z\s]{2,50}$/,
@@ -87,6 +96,12 @@ export default function register() {
     return "";
   };
 
+  /**
+   * Calculates the strength of a password based on its composition
+   *
+   * @param {string} password - The password to evaluate
+   * @returns {number} Strength level (0-5) indicating the password's strength
+   */
   const calculatePasswordStrength = (password) => {
     let strength = 0;
     if (password.length >= 8) strength++;
@@ -111,6 +126,16 @@ export default function register() {
     setErrors((prev) => ({ ...prev, [name]: error }));
   };
 
+  /**
+   * Handles form submission and uploads user data to MongoDB backend
+   *
+   * - Validates all form fields
+   * - Sends a POST request to the backend API with user data
+   * - Navigates to login page on success
+   * - Displays error message on failure
+   *
+   * @param {React.FormEvent} e - Form submission event
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -129,8 +154,17 @@ export default function register() {
       return;
     }
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Send data to backend API
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to register user");
+      }
       navigate("/customer/login?registered=true");
     } catch (error) {
       setErrors({ general: "Registration failed. Please try again." });
@@ -154,16 +188,19 @@ export default function register() {
   return (
     <div className="min-h-screen bg-background py-8 px-4">
       <div className="max-w-md mx-auto">
-        {/* Header */}
+        {/* Header Section */}
         <div className="text-center mb-8">
+          {/* Back to Home Link */}
           <Link to="/" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-4">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home
           </Link>
+          {/* Bank Branding */}
           <div className="flex items-center justify-center mb-4">
             <Shield className="h-8 w-8 mr-2" style={{color:'var(--primary)'}} />
             <h1 className="text-2xl font-bold text-foreground">AdAstra Bank</h1>
           </div>
+          {/* SSL Security Indicator */}
           <div className="flex items-center justify-center space-x-2 text-sm text-success">
             <Lock className="h-4 w-4" />
             <span>SSL Secured Registration</span>
@@ -172,17 +209,20 @@ export default function register() {
 
         <Card className="border-2">
           <CardHeader className="text-center">
+            {/* Registration Form Header */}
             <CardTitle className="text-2xl">Customer Registration</CardTitle>
             <CardDescription>Create your secure international payment account</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* General Error Alert */}
               {errors.general && (
                 <Alert variant="destructive">
                   <AlertDescription>{errors.general}</AlertDescription>
                 </Alert>
               )}
 
+              {/* Full Name Input */}
               <div className="space-y-2">
                 <Label htmlFor="fullName">Full Name</Label>
                 <Input
@@ -198,6 +238,7 @@ export default function register() {
                 {errors.fullName && <p className="text-sm text-destructive">{errors.fullName}</p>}
               </div>
 
+              {/* ID Number Input */}
               <div className="space-y-2">
                 <Label htmlFor="idNumber">ID Number</Label>
                 <Input
@@ -214,6 +255,7 @@ export default function register() {
                 {errors.idNumber && <p className="text-sm text-destructive">{errors.idNumber}</p>}
               </div>
 
+              {/* Account Number Input */}
               <div className="space-y-2">
                 <Label htmlFor="accountNumber">Account Number</Label>
                 <Input
@@ -229,6 +271,7 @@ export default function register() {
                 {errors.accountNumber && <p className="text-sm text-destructive">{errors.accountNumber}</p>}
               </div>
 
+              {/* Username Input */}
               <div className="space-y-2">
                 <Label htmlFor="username">Username</Label>
                 <Input
@@ -244,6 +287,7 @@ export default function register() {
                 {errors.username && <p className="text-sm text-destructive">{errors.username}</p>}
               </div>
 
+              {/* Password Input with Strength Indicator */}
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
@@ -281,6 +325,7 @@ export default function register() {
                 {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
               </div>
 
+              {/* Confirm Password Input */}
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Confirm Password</Label>
                 <div className="relative">
@@ -311,6 +356,7 @@ export default function register() {
                 {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword}</p>}
               </div>
 
+              {/* Terms and Conditions Checkbox */}
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="terms"
@@ -330,11 +376,13 @@ export default function register() {
               </div>
               {errors.terms && <p className="text-sm text-destructive">{errors.terms}</p>}
 
+              {/* Submit Button */}
               <Button type="submit" className="w-full" disabled={isLoading || !acceptTerms}>
                 {isLoading ? "Creating Account..." : "Create Account"}
               </Button>
             </form>
 
+            {/* Navigation Links */}
             <div className="mt-6 text-center">
               <p className="text-sm text-muted-foreground">
                 Already have an account?{" "}
@@ -362,3 +410,4 @@ export default function register() {
     </div>
   )
 }
+//Comments are assisted and expanded on by GitHub Copilot

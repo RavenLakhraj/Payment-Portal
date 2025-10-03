@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
 import Badge from "../../components/ui/badge";
@@ -109,24 +110,6 @@ export default function dashboard() {
       // ignore
     }
 
-    // fallback sample data if none present
-    const mockPayments = [
-      {
-        id: "PAY001",
-        customerName: "John Smith",
-        accountNumber: "1234567890",
-        amount: 5000,
-        currency: "USD",
-        recipientName: "Jane Doe",
-        recipientAccount: "9876543210",
-        swiftCode: "ABCDUS33XXX",
-        status: "pending",
-        createdAt: "2025-01-15T10:30:00Z",
-        description: "Business payment for services",
-      },
-    ];
-    setPayments(mockPayments);
-    setFilteredPayments(mockPayments);
   }, []);
 
   // Filter payments based on search and status
@@ -151,77 +134,85 @@ export default function dashboard() {
     setFilteredPayments(filtered)
   }, [payments, searchTerm, statusFilter])
 
-  // Approve payment (do NOT mark as 'verified' — verification happens on SWIFT submission)
-  const handleVerifyPayment = async (paymentId) => {
-    setIsLoading(true)
+  // Approve payment by calling backend API
+  const refreshPaymentsFromServer = async () => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500))
-      const updated = payments.map((payment) => (payment.id === paymentId ? { ...payment, status: 'approved' } : payment));
-      setPayments(updated);
-      setFilteredPayments(updated);
-      try { localStorage.setItem('ads_payments', JSON.stringify(updated)); } catch (e) {}
-    } catch (error) {
-      console.error("Failed to approve payment:", error)
-    } finally {
-      setIsLoading(false)
+      const res = await fetch('/payments', { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to fetch payments');
+      const data = await res.json();
+      setPayments(Array.isArray(data) ? data : []);
+      setFilteredPayments(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.warn('Could not refresh payments from server:', err && err.message ? err.message : err);
     }
-  }
+  };
+
+  const handleVerifyPayment = async (paymentId) => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(`/payments/${paymentId}/status`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'Approved' }),
+      });
+      if (!res.ok) throw new Error('Failed to approve payment');
+      await refreshPaymentsFromServer();
+    } catch (error) {
+      console.error('Failed to approve payment:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleRejectPayment = async (paymentId, reason) => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      const updated = payments.map((payment) => (payment.id === paymentId ? { ...payment, status: 'rejected' } : payment));
-      setPayments(updated);
-      setFilteredPayments(updated);
-      try { localStorage.setItem('ads_payments', JSON.stringify(updated)); } catch (e) {}
-      setRejectionReason('')
-      setSelectedPayment(null)
+      const res = await fetch(`/payments/${paymentId}/status`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'Rejected', reason }),
+      });
+      if (!res.ok) throw new Error('Failed to reject payment');
+      setRejectionReason('');
+      setSelectedPayment(null);
+      await refreshPaymentsFromServer();
     } catch (error) {
-      console.error("Failed to reject payment:", error)
+      console.error('Failed to reject payment:', error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleSubmitToSwift = async () => {
-    if (!payments || payments.length === 0) return
+    if (!payments || payments.length === 0) return;
 
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      // Submit approved payments directly to 'submitted' without intermediate 'verified' state
-      // Keep a local snapshot so we persist correctly after the simulated API call
-      const toSubmitIds = payments.filter((p) => p.status === 'approved').map(p => p.id);
+      const toSubmitIds = payments.filter((p) => p.status === 'Approved' || p.status === 'approved').map((p) => p.id);
       if (toSubmitIds.length === 0) {
         setIsLoading(false);
         return;
       }
 
-      // Immediately increment cumulative verified counter so the Verified card reflects the new total
-      setCumulativeVerified((prev) => {
-        const next = (prev || 0) + toSubmitIds.length;
-        try { localStorage.setItem('ads_cumulative_verified', String(next)); } catch (e) {}
-        return next;
-      });
+      // Submit each approved payment to 'Submitted' status on the server
+      await Promise.all(
+        toSubmitIds.map((id) =>
+          fetch(`/payments/${id}/status`, {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'Submitted' }),
+          })
+        )
+      );
 
-      // Optionally: mark locally as 'submitting' to reflect in UI during operation
-      const submittingSnapshot = payments.map((p) => (toSubmitIds.includes(p.id) ? { ...p, status: 'submitting' } : p));
-      setPayments(submittingSnapshot);
-      setFilteredPayments(submittingSnapshot);
-      try { localStorage.setItem('ads_payments', JSON.stringify(submittingSnapshot)); } catch (e) {}
-
-      // Simulate API submission delay
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // After successful submission, mark as 'submitted'
-      const updated = submittingSnapshot.map((payment) => (toSubmitIds.includes(payment.id) ? { ...payment, status: 'submitted' } : payment));
-      setPayments(updated);
-      setFilteredPayments(updated);
-      try { localStorage.setItem('ads_payments', JSON.stringify(updated)); } catch (e) {}
+      await refreshPaymentsFromServer();
     } catch (error) {
-      console.error("Failed to submit to SWIFT:", error)
+      console.error('Failed to submit to SWIFT:', error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
@@ -572,17 +563,6 @@ export default function dashboard() {
                   </CardContent>
                 </Card>
               )}
-            </div>
-            {/* Clear transactions button at bottom of Payment Transactions */}
-            <div className="mt-4 flex justify-end">
-              <Button variant="destructive" onClick={() => {
-                if (!confirm('Are you sure you want to delete ALL transactions? This cannot be undone.')) return;
-                try { localStorage.removeItem('ads_payments'); } catch (e) {}
-                setPayments([]);
-                setFilteredPayments([]);
-              }}>
-                Clear Transactions
-              </Button>
             </div>
           </CardContent>
         </Card>

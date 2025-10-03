@@ -8,18 +8,51 @@ import { Label } from "../../components/ui/label";
 import Alert, { AlertDescription } from "../../components/ui/alert";
 import { Shield, Eye, EyeOff, ArrowLeft, Lock } from "lucide-react";
 
+/**
+ * Customer Login Component
+ * Provides secure authentication for bank customers with real-time validation.
+ *
+ * Features:
+ * - Real-time input validation
+ * - Input sanitization for security
+ * - Password visibility toggle
+ * - Loading state handling
+ * - Error messaging
+ * - SSL security indicator
+ *
+ * @component
+ * @returns {JSX.Element} Secure customer login form
+ */
 export default function logincustomer() {
+  // Form state management
+  /** @state {Object} Form data containing username, account number, and password */
   const [formData, setFormData] = useState({
     username: "",
     accountNumber: "",
     password: "",
   });
+  /** @state {boolean} Controls password visibility toggle */
   const [showPassword, setShowPassword] = useState(false);
+  /** @state {Object} Stores validation errors for each form field */
   const [errors, setErrors] = useState({});
+  /** @state {boolean} Indicates form submission in progress */
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  /**
+   * Validates form input against predefined patterns
+   * 
+   * @param {string} name - Field name to validate (username/accountNumber/password)
+   * @param {string} value - Input value to validate
+   * @returns {string} Error message if validation fails, empty string if valid
+   */
   const validateInput = (name, value) => {
+    // Regular expressions for input validation
+    /** @const {Object} Validation patterns for form fields
+     *  username: 3-20 chars, alphanumeric + underscore
+     *  accountNumber: 10-16 digits
+     *  password: 8+ chars, must include upper, lower, number, special
+     */
     const patterns = {
       username: /^[a-zA-Z0-9_]{3,20}$/,
       accountNumber: /^[0-9]{10,16}$/,
@@ -37,6 +70,11 @@ export default function logincustomer() {
     return "";
   };
 
+  /**
+   * Handles form input changes with sanitization and validation
+   * 
+   * @param {React.ChangeEvent} e - Input change event
+   */
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     // Input sanitization - remove potentially harmful characters
@@ -47,6 +85,17 @@ export default function logincustomer() {
     setErrors((prev) => ({ ...prev, [name]: error }));
   };
 
+  /**
+   * Handles form submission with validation and authentication
+   * 
+   * - Prevents default form submission
+   * - Validates all form fields
+   * - Shows loading state during authentication
+   * - Handles authentication response
+   * - Redirects on success
+   * 
+   * @param {React.FormEvent} e - Form submission event
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -76,8 +125,9 @@ export default function logincustomer() {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      {/* Main container with max width for readability */}
       <div className="w-full max-w-md">
-        {/* Header */}
+        {/* Bank branding and security indicator */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-4">
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -106,6 +156,7 @@ export default function logincustomer() {
                 </Alert>
               )}
 
+              {/* Username input field with validation */}
               <div className="space-y-2">
                 <Label htmlFor="username">Username</Label>
                 <Input
@@ -136,6 +187,7 @@ export default function logincustomer() {
                 {errors.accountNumber && <p className="text-sm text-destructive">{errors.accountNumber}</p>}
               </div>
 
+              {/* Password input with visibility toggle */}
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
@@ -165,6 +217,7 @@ export default function logincustomer() {
               </Button>
             </form>
 
+            {/* Registration and alternative login links */}
             <div className="mt-6 text-center">
               <p className="text-sm text-muted-foreground">
                 {"Don't have an account? "}
@@ -192,3 +245,4 @@ export default function logincustomer() {
     </div>
   );
 }
+//Comments are assisted and expanded on by GitHub Copilot

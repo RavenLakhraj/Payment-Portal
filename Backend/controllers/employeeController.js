@@ -87,9 +87,16 @@ export async function handleLoginEmployee(req, res) {
             { expiresIn: '1h' }
         )
 
+        // Mitigate session hijacking by storing the JWT in an HttpOnly, Secure, SameSite=Strict cookie
+        res.cookie('token', token, {
+            httpOnly: true, // not accessible to JS
+            secure: true,   // sent only over HTTPS
+            sameSite: 'strict', // CSRF mitigation
+            maxAge: 60 * 60 * 1000,
+        })
+
         return res.status(200).json({
             message: 'Login successful',
-            token,
             role: 'employee'
         })
     } catch (err) {

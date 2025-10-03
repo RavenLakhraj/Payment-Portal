@@ -63,11 +63,8 @@ export default function dashboard() {
     try {
       const raw = localStorage.getItem('ads_payments');
       const stored = raw ? JSON.parse(raw) : [];
-      // Filter out demo payments (PAY001..PAY003)
-      const filtered = (Array.isArray(stored) ? stored : []).filter(p => !/^PAY00[1-3]$/.test(p.id));
-      setPayments(filtered);
-      // persist filtered to avoid showing them again
-      try { localStorage.setItem('ads_payments', JSON.stringify(filtered)); } catch (e) {}
+      const safeArray = Array.isArray(stored) ? stored : [];
+      setPayments(safeArray);
     } catch (err) {
       setPayments([]);
     }

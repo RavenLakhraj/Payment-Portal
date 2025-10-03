@@ -8,17 +8,39 @@ import { Label } from "../../components/ui/label";
 import { Button } from "../../components/ui/button";
 import Alert, { AlertDescription } from "../../components/ui/alert";
 
-// Customer Login page
-// - Accepts savings account number OR email and password
-// - If redirected from registration, shows a success message and pre-fills the identifier
-// - Authenticates against demo localStorage user store and redirects to dashboard on success
+/**
+ * Customer Login Component
+ * Provides authentication for bank customers using either account number or email.
+ * 
+ * Features:
+ * - Flexible authentication using account number or email
+ * - Integration with registration flow
+ * - Success/error message display
+ * - Automatic form prefilling from registration
+ * - Local storage based authentication (demo purposes)
+ * 
+ * @component
+ * @returns {JSX.Element} Rendered login form with navigation options
+ */
 export default function login() {
   const router = useRouter();
-  const [identifier, setIdentifier] = useState(""); // account number or email
+
+  // State Management
+  /** @state {string} identifier - User's account number or email for authentication */
+  const [identifier, setIdentifier] = useState("");
+  /** @state {string} password - User's password */
   const [password, setPassword] = useState("");
+  /** @state {string} message - Feedback message for user (success/error) */
   const [message, setMessage] = useState("");
 
-  // Read query params and try to prefill the identifier if available
+  /**
+   * Effect to handle form pre-filling and registration success message
+   * 
+   * - Checks URL parameters for registration status and account number
+   * - Sets success message if user just registered
+   * - Pre-fills identifier field with account number from URL or localStorage
+   * - Depends on router.isReady to ensure query params are available
+   */
   useEffect(() => {
     if (!router.isReady) return;
     const { registered, accountNumber: acc } = router.query;
@@ -39,7 +61,17 @@ export default function login() {
     }
   }, [router.isReady]);
 
-  // Handle login form submit
+  /**
+   * Handles form submission and user authentication
+   * 
+   * - Prevents default form submission
+   * - Validates credentials against localStorage user store
+   * - Sets auth token on successful login
+   * - Redirects to dashboard on success
+   * - Shows error message on failure
+   * 
+   * @param {React.FormEvent} e - Form submission event
+   */
   const handleSubmit = (e) => {
     e.preventDefault();
     // simple auth against localStorage users for demo purposes
@@ -61,7 +93,9 @@ export default function login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      {/* Main container - Centered login form with responsive padding */}
       <div className="w-full max-w-md">
+        {/* Back Navigation Button */}
         <div className="mb-4">
           <button
             type="button"
@@ -91,6 +125,7 @@ export default function login() {
                 </Alert>
               </div>
             )}
+            {/* Login Form - Handles user authentication */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="identifier">Account Number or Email</Label>
@@ -102,6 +137,7 @@ export default function login() {
               </div>
               <Button type="submit" className="w-full" style={{backgroundColor:'var(--primary)', color:'var(--on-accent)'}}>Login</Button>
             </form>
+            {/* Additional Navigation Links */}
             <div className="mt-6 text-center space-y-2">
               <p className="text-sm text-muted-foreground">
                 {"Don't have an account? "}
@@ -122,3 +158,5 @@ export default function login() {
     </div>
   );
 }
+
+//Comments are assisted and expanded on by GitHub Copilot

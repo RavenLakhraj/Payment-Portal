@@ -1,25 +1,38 @@
 import React, { useState } from "react";
 import Link from "next/link";
 
-// Employee Login page
-// - Collects employee ID and password
-// - Validates formats locally and simulates an API call
-// - On success navigates to employee dashboard (demo: stores mock token in localStorage)
-import { useRouter } from "next/router";
-import { Button } from "../../components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
-import { Input } from "../../components/ui/input";
-import { Label } from "../../components/ui/label";
-import Alert, { AlertDescription } from "../../components/ui/alert";
-import { Shield, Eye, EyeOff, ArrowLeft, Lock, Building } from "lucide-react";
-
+/**
+ * Employee Login Component
+ * Provides a secure login interface for employees to access the transaction management system.
+ *
+ * Features:
+ * - Validates email and password formats
+ * - Simulates API call for authentication
+ * - Stores mock token in localStorage on successful login
+ * - Redirects to employee dashboard
+ *
+ * @component
+ * @returns {JSX.Element} Rendered employee login form
+ */
 export default function EmployeeLogin() {
+  // State management
+  /** @state {Object} formData - Stores email and password input */
   const [formData, setFormData] = useState({ email: "", password: "" });
+  /** @state {boolean} showPassword - Toggles visibility of the password field */
   const [showPassword, setShowPassword] = useState(false);
+  /** @state {Object} errors - Stores validation errors for email and password */
   const [errors, setErrors] = useState({});
+  /** @state {boolean} isLoading - Indicates whether the form submission is in progress */
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
+  /**
+   * Validates form input against predefined patterns
+   *
+   * @param {string} name - Field name to validate (email or password)
+   * @param {string} value - Input value to validate
+   * @returns {string} Error message if validation fails, empty string if valid
+   */
   const validateInput = (name, value) => {
     const patterns = {
       email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
@@ -34,17 +47,34 @@ export default function EmployeeLogin() {
     return "";
   };
 
+  /**
+   * Handles input changes and performs real-time validation
+   *
+   * @param {React.ChangeEvent} e - Input change event
+   */
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    const sanitizedValue = value.replace(/[<>"'&]/g, ""); // sanitize
+    const sanitizedValue = value.replace(/[<>\"'&]/g, ""); // sanitize
     setFormData((prev) => ({ ...prev, [name]: sanitizedValue }));
     setErrors((prev) => ({ ...prev, [name]: validateInput(name, sanitizedValue) }));
   };
 
+  /**
+   * Handles form submission and simulates API call for authentication
+   *
+   * - Validates all fields
+   * - Checks credentials against mock employee data in localStorage
+   * - Stores mock token in localStorage on success
+   * - Redirects to employee dashboard
+   * - Displays error message on failure
+   *
+   * @param {React.FormEvent} e - Form submission event
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
+    // Validate all fields
     const newErrors = {};
     Object.entries(formData).forEach(([key, value]) => {
       const error = validateInput(key, value);
@@ -57,7 +87,7 @@ export default function EmployeeLogin() {
     }
 
     try {
-      // check against stored employees in localStorage
+      // Check against stored employees in localStorage
       const raw = localStorage.getItem('ads_employees');
       const employees = raw ? JSON.parse(raw) : [];
       const found = employees.find((u) => u.email === formData.email && u.password === formData.password);
@@ -78,15 +108,18 @@ export default function EmployeeLogin() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Header */}
+        {/* Header Section */}
         <div className="text-center mb-8">
+          {/* Back to Home Link */}
           <Link href="/" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-4">
             <ArrowLeft className="h-4 w-4 mr-2" /> Back to Home
           </Link>
+          {/* Bank Branding */}
           <div className="flex items-center justify-center mb-4">
             <Shield className="h-8 w-8 mr-2" style={{color:'var(--primary)'}} />
             <h1 className="text-2xl font-bold text-foreground">AdAstra Bank</h1>
           </div>
+          {/* SSL Security Indicator */}
           <div className="flex items-center justify-center space-x-2 text-sm text-success">
             <Lock className="h-4 w-4" /> <span>SSL Secured Connection</span>
           </div>
@@ -95,6 +128,7 @@ export default function EmployeeLogin() {
         {/* Login Card */}
         <Card className="border-2">
           <CardHeader className="text-center">
+            {/* Employee Portal Icon */}
             <div className="mx-auto mb-4 p-3 bg-accent/10 rounded-full w-fit">
               <Building className="h-8 w-8 text-accent" />
             </div>
@@ -103,11 +137,12 @@ export default function EmployeeLogin() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* General Error Alert */}
               {errors.general && (
                 <Alert variant="destructive"><AlertDescription>{errors.general}</AlertDescription></Alert>
               )}
 
-              {/* Employee Email */}
+              {/* Employee Email Input */}
               <div className="space-y-2">
                 <Label htmlFor="email">Employee Email</Label>
                 <Input
@@ -122,7 +157,7 @@ export default function EmployeeLogin() {
                 {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
               </div>
 
-              {/* Password */}
+              {/* Password Input */}
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
@@ -147,6 +182,7 @@ export default function EmployeeLogin() {
                 {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
               </div>
 
+              {/* Submit Button */}
               <Button type="submit" className="w-full" disabled={isLoading} style={{backgroundColor:'var(--primary)', color:'var(--on-accent)'}}>
                 {isLoading ? "Signing In..." : "Access Portal"}
               </Button>
@@ -157,3 +193,4 @@ export default function EmployeeLogin() {
     </div>
   );
 }
+//Comments are assisted and expanded on by GitHub Copilot
