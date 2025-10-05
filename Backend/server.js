@@ -65,7 +65,6 @@ app.use(hpp())
 app.use((req, res, next) => {
   if (req.body) mongoSanitize.sanitize(req.body);
   if (req.params) mongoSanitize.sanitize(req.params);
-  // skip req.query entirely to avoid read-only error
   next();
 });
 
@@ -84,7 +83,6 @@ const server = https.createServer(
   {
     key: fs.readFileSync('keys/privatekey.pem'),
     cert: fs.readFileSync('keys/certificate.pem'),
-    // added CA just in case
     ca: fs.readFileSync('keys/CA.pem'),
   },
   app

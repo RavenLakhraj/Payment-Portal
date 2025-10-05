@@ -15,6 +15,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json',
         'Content-Length': Buffer.byteLength(payload),
       },
+      //Trusting this app's self-signed certificates
       rejectUnauthorized: false,
     };
 
