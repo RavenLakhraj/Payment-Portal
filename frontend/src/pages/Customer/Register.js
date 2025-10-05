@@ -165,7 +165,7 @@ export default function register() {
       if (!response.ok) {
         throw new Error("Failed to register user");
       }
-      navigate("/customer/login?registered=true");
+      navigate("/Customer/login?registered=true");
     } catch (error) {
       setErrors({ general: "Registration failed. Please try again." });
     } finally {

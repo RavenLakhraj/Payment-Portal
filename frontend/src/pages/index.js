@@ -15,7 +15,7 @@ export default function Home() {
 			{/* Quick action links */}
 			<div className="space-x-4">
 				<Link href="/employee/login" className="px-6 py-3 rounded text-on-accent" style={{backgroundColor:'var(--primary)'}}>Employee Login</Link>
-				<Link href="/customer/login" className="px-6 py-3 rounded text-on-accent" style={{backgroundColor:'var(--accent)'}}>Customer Login</Link>
+				<Link href="/Customer/login" className="px-6 py-3 rounded text-on-accent" style={{backgroundColor:'var(--accent)'}}>Customer Login</Link>
 			</div>
 			{/* Short description */}
 			<div className="mt-8 text-muted-foreground text-center text-sm max-w-md">
