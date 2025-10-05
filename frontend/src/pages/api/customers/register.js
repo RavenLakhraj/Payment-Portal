@@ -8,13 +8,14 @@ export default async function handler(req, res) {
 
     const options = {
       hostname: '127.0.0.1',
-      port: 2001,
+      port: 2000,
       path: '/customers/register',
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Content-Length': Buffer.byteLength(payload),
       },
+      rejectUnauthorized: false,
     };
 
     const proxyReq = https.request(options, (proxyRes) => {

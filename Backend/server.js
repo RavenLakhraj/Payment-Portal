@@ -62,7 +62,12 @@ app.use(hpp())
 // 2. Input validation - All routes use Mongoose schemas which provide type checking
 // 3. Parameterized queries - Mongoose automatically escapes values in queries
 // 4. Input sanitization - Frontend also sanitizes data before sending to backend
-app.use(mongoSanitize())
+app.use((req, res, next) => {
+  if (req.body) mongoSanitize.sanitize(req.body);
+  if (req.params) mongoSanitize.sanitize(req.params);
+  // skip req.query entirely to avoid read-only error
+  next();
+});
 
 // Routes
 app.use('/employees', employeeRoutes)
@@ -94,7 +99,7 @@ server.listen(port, () => {
 })
 
 // Start an additional HTTP server on 2001 for local development proxy fallback
-const httpPort = process.env.HTTP_PORT || 2001
-app.listen(httpPort, () => {
-  console.log(`HTTP fallback server started on PORT ${httpPort}`)
-})
+// const httpPort = process.env.HTTP_PORT || 2001
+// app.listen(httpPort, () => {
+//   console.log(`HTTP fallback server started on PORT ${httpPort}`)
+// })
