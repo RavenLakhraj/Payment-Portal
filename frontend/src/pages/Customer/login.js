@@ -26,8 +26,10 @@ export default function login() {
   const router = useRouter();
 
   // State Management
-  /** @state {string} identifier - User's account number or email for authentication */
-  const [identifier, setIdentifier] = useState("");
+  /** @state {string} identifier - User's email address for authentication */
+  const [email, setEmail] = useState("");
+  /** @state {string} identifier - User's account number for authentication */
+  const [accountNumber, setAccountNumber] = useState("");
   /** @state {string} password - User's password */
   const [password, setPassword] = useState("");
   /** @state {string} message - Feedback message for user (success/error) */
@@ -57,7 +59,7 @@ export default function login() {
           const parsed = JSON.parse(last);
           if (parsed.accountNumber) setIdentifier(parsed.accountNumber);
         }
-      } catch (e) {}
+      } catch (e) { }
     }
   }, [router.isReady]);
 
@@ -76,11 +78,7 @@ export default function login() {
     e.preventDefault();
     setMessage('');
     try {
-      const payload = {
-        accountNumber: identifier && identifier.match(/^\d+$/) ? identifier : undefined,
-        email: identifier && identifier.includes('@') ? identifier : undefined,
-        password,
-      };
+      const payload = { email, accountNumber, password };
 
       const res = await fetch('/api/customers/login', {
         method: 'POST',
@@ -90,10 +88,19 @@ export default function login() {
       });
 
       if (res.status === 200) {
-        // Login succeeded; backend set HttpOnly cookie; redirect to dashboard
-        router.push('/customer/dashboard');
+        // Optionally read response JSON
+        const body = await res.json().catch(() => ({}));
+
+        // Store account info in localStorage so dashboard can access it
+        localStorage.setItem('authToken', JSON.stringify({
+          accountNumber,
+          // optional: name or other user info if backend returns it
+        }));
+
+        router.push('/Customer/Dashboard');
         return;
       }
+
 
       const body = await res.json().catch(() => ({}));
       setMessage(body.message || 'Invalid credentials');
@@ -140,14 +147,36 @@ export default function login() {
             {/* Login Form - Handles user authentication */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="identifier">Account Number or Email</Label>
-                <Input id="identifier" name="identifier" type="text" placeholder="account number or email" value={identifier} onChange={(e) => setIdentifier(e.target.value)} required />
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="accountNumber">Account Number</Label>
+                <Input
+                  id="accountNumber"
+                  name="accountNumber"
+                  type="text"
+                  placeholder="Enter your account number"
+                  value={accountNumber}
+                  onChange={(e) => setAccountNumber(e.target.value)}
+                  required
+                />
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <Input id="password" name="password" type="password" placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} required />
               </div>
-              <Button type="submit" className="w-full" style={{backgroundColor:'var(--primary)', color:'var(--on-accent)'}}>Login</Button>
+              <Button type="submit" className="w-full" style={{ backgroundColor: 'var(--primary)', color: 'var(--on-accent)' }}>Login</Button>
             </form>
             {/* Additional Navigation Links */}
             <div className="mt-6 text-center space-y-2">

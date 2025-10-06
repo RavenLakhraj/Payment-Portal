@@ -32,7 +32,7 @@ export default function dashboard() {
     const tokenRaw = localStorage.getItem("authToken");
     if (!tokenRaw) {
       console.log("[v0] No auth token found, redirecting to login");
-      window.location.href = "/customer/login";
+      window.location.href = "/Customer/login";
       return;
     }
 

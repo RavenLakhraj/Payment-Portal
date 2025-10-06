@@ -136,7 +136,8 @@ export async function handleLoginCustomer(req, res) {
 
         return res.status(200).json({
             message: 'Login successful',
-            role: 'customer'
+            role: 'customer',
+            token
         })
     } catch(err) {
         console.error(err)

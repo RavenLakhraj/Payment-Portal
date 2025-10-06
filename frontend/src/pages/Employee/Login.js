@@ -103,7 +103,7 @@ export default function EmployeeLogin() {
       });
 
       if (res.status === 200) {
-        router.push('/employee/dashboard');
+        router.push('/Employee/Dashboard');
       } else {
         const body = await res.json().catch(() => ({}));
         setErrors({ general: body.message || 'Invalid credentials' });
