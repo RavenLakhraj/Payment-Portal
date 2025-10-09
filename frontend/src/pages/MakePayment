@@ -1,0 +1,97 @@
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import api from '../api'
+
+export default function MakePayment(){
+  const [amount, setAmount] = useState('')
+  const [currency, setCurrency] = useState('')
+  const [provider, setProvider] = useState('')
+  const [payeeName, setPayeeName] = useState('')
+  const [payeeAccountNumber, setPayeeAccountNumber] = useState('')
+  const [swiftCode, setSwiftCode] = useState('')
+  const [message, setMessage] = useState('')
+
+  const navigate = useNavigate()
+
+  const amountRegex = /^(?:[1-9]\d*|0?\.\d*[1-9]\d?)$/
+  const payeeNameRegex = /^[A-Za-z\s-]+$/
+  const payeeAccountNumberRegex = /^\d{9,12}$/
+  const swiftCodeRegex = /^[A-Za-z0-9]{8,11}$/
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setMessage('')
+
+    if(!amountRegex.test(amount)) return setMessage('Invalid amount.')
+    if(!payeeNameRegex.test(payeeName)) return setMessage('Invalid name.')
+    if(!payeeAccountNumberRegex.test(payeeAccountNumber)) return setMessage('Invalid account number.')
+    if(!swiftCodeRegex.test(swiftCode)) return setMessage('Invalid SWIFT code.')
+
+    try{
+      await api.post('/payments/make-payment', { amount, currency, provider, payeeName, payeeAccountNumber, swiftCode })
+      navigate('/customers/payment-success')
+    }catch(err){
+      setMessage(err.response?.data?.message || 'Payment failed.')
+      console.error(err)
+    }
+  }
+
+  const handleLogout = async () => {
+    try{ await api.post('/auth/logout') } catch(e) {}
+    window.location.href = '/'
+  }
+
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      fontFamily: 'Arial, sans-serif',
+      padding: '20px',
+      backgroundColor: '#f5f5f5',
+      minHeight: '100vh'
+    }}>
+      <h1 style={{ marginBottom: '30px', color: '#333' }}>Submit Payment</h1>
+
+      <form onSubmit={handleSubmit} style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '15px',
+        backgroundColor: '#fff',
+        padding: '30px',
+        borderRadius: '8px',
+        boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+        width: '100%',
+        maxWidth: '400px'
+      }}>
+        <input type="text" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Amount" style={{padding:'10px',borderRadius:'6px',border:'1px solid #ccc',fontSize:'16px'}}/>
+        <select value={currency} onChange={e => setCurrency(e.target.value)} style={{padding:'10px',borderRadius:'6px',border:'1px solid #ccc',fontSize:'16px'}}>
+          <option value=''>Select currency</option>
+          <option value='USD'>USD - US Dollar</option>
+          <option value='EUR'>EUR - Euro</option>
+          <option value='ZAR'>ZAR - South African Rand</option>
+          <option value='GBP'>GBP - Great British Pound</option>
+        </select>
+
+        <div>
+          <p>Payment Provider:</p>
+          <label style={{ marginRight: '15px' }}>
+            <input type="radio" value="swift" checked={provider === 'swift'} onChange={e => setProvider(e.target.value)} /> SWIFT
+          </label>
+        </div>
+
+        <input type="text" value={payeeName} onChange={(e) => setPayeeName(e.target.value)} placeholder="Payee Name" style={{padding:'10px',borderRadius:'6px',border:'1px solid #ccc',fontSize:'16px'}}/>
+        <input type="text" value={payeeAccountNumber} onChange={(e) => setPayeeAccountNumber(e.target.value)} placeholder="Payee Account Number" style={{padding:'10px',borderRadius:'6px',border:'1px solid #ccc',fontSize:'16px'}}/>
+        <input type="text" value={swiftCode} onChange={(e) => setSwiftCode(e.target.value)} placeholder="SWIFT Code" style={{padding:'10px',borderRadius:'6px',border:'1px solid #ccc',fontSize:'16px'}}/>
+
+        <button type="submit" style={{padding:'12px',borderRadius:'6px',border:'none',backgroundColor:'#28a745',color:'#fff',fontWeight:'bold',cursor:'pointer',fontSize:'16px'}}>Submit Payment</button>
+
+        <div>
+          <button type="button" onClick={handleLogout} style={{padding:'10px',marginTop:'10px',borderRadius:'6px',border:'none',backgroundColor:'#dc3545',color:'#fff',cursor:'pointer',fontSize:'16px'}}>Logout</button>
+        </div>
+
+        {message && <p style={{ marginTop: '15px', color: message.toLowerCase().includes('success') ? 'green' : 'red' }}>{message}</p>}
+      </form>
+    </div>
+  )
+}

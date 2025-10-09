@@ -11,15 +11,3 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-
-/* Minimal reset and accessible font scaling */
-html, body, #root {
-  height: 100%;
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f5f5f5;
-  color: #222;
-}
-
-button { font-family: inherit; }
-a { color: inherit; }
